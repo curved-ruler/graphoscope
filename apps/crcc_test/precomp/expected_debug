@@ -1,0 +1,44 @@
+// --------------- test/unit_tests/precomp/tst.in ---------------
+
+// --------------- test/unit_tests/precomp/a.txt ---------------
+
+// --------------- test/unit_tests/precomp/x/c.txt ---------------
+
+// --------------- test/unit_tests/precomp/a.txt ---------------
+// --------------once--------------
+
+
+CCC
+CCCCCCCCC
+// ---------------eof---------------
+
+
+0
+1
+2
+3
+
+// ---------------eof---------------
+
+// --------------- test/unit_tests/precomp/x/b.txt ---------------
+
+// --------------- test/unit_tests/precomp/x/c.txt ---------------
+// --------------once--------------
+
+
+BBB
+BB
+B
+
+// ---------------eof---------------
+
+
+TST
+i: 1 $ after
+j: 2 k: 3
+$noname$ after
+before$non$
+b $$ a
+
+// ---------------eof---------------
+

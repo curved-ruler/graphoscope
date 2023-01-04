@@ -1,0 +1,10 @@
+
+#include "a.txt"
+#include "x/b.txt"
+
+TST
+i: $i$ $ after
+j: $j$ k: $k$
+$noname$ after
+before$non$
+b $$ a
