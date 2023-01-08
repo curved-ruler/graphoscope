@@ -102,6 +102,7 @@ void r_nshaded::render(const cr::camera& cam, const cr::mat4& modeltr, const cr:
     }
 #endif
     
+    glPointSize(settings->pointsize);
     switch (settings->objtype)
     {
         case 0:  glDrawArrays(GL_POINTS,    0, bufs.pntn * 1); break;

@@ -11,3 +11,5 @@
 #include "spherical.hh"
 #include "line.hh"
 #include "plane.hh"
+
+#include "delaunay.hh"
