@@ -1,5 +1,5 @@
 
-#include "aeroplane.hh"
+#include "spaceship.hh"
 
 #include <iostream>
 
@@ -7,7 +7,7 @@ namespace cr {
 
 
 
-aeroplane::aeroplane (camera* c, const std::string& /*vfile*/)
+spaceship::spaceship (camera* c, const std::string& /*vfile*/)
 {
     cam = c;
     //campos.set(0.0f, -0.5f, -0.3f);
@@ -34,12 +34,12 @@ aeroplane::aeroplane (camera* c, const std::string& /*vfile*/)
     maxvel = 0.03f;
     maxavel = 0.5f;
 }
-aeroplane::~aeroplane ()
+spaceship::~spaceship ()
 {
     //delete geometry;
 }
 
-void aeroplane::update_cam ()
+void spaceship::update_cam ()
 {
     vec3 up    = rot_q(orient, zi);
     vec3 look  = rot_q(orient, xi);
@@ -54,7 +54,7 @@ void aeroplane::update_cam ()
     cam->constrain();
 }
 
-void aeroplane::control (int key, int action)
+void spaceship::control (int key, int action)
 {
     bool newval = !(action == keys::RELEASE);
     
@@ -73,7 +73,7 @@ void aeroplane::control (int key, int action)
     if (key == keys::E) { tRyaw = newval; }
 }
 
-void aeroplane::tick (float dt)
+void spaceship::tick (float dt)
 {
     clear();
     

@@ -16,7 +16,7 @@ class integer {
         static const uint8 blocksize; // bitsize of a block
         static const uint8 MSB;       // most significant bit mask in a block
         
-        static const uint8 NaN;       // sign() returns this if NaN
+        static const int8 NaN;       // sign() returns this if NaN
         
     public:
         integer();

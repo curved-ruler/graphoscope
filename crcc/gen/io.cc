@@ -112,16 +112,18 @@ std::string read_file(const std::string& fname)
     }
 }
 
-void read_file_b (const char* filename, std::vector<char>& res)
+int read_file_b (const char* filename, std::vector<char>& res)
 {
     std::ifstream ifs(filename, std::ios::binary|std::ios::ate);
-    if (!ifs) { std::cout << "File not found: " << filename << std::endl; return; }
+    if (!ifs) { std::cout << "File not found: " << filename << std::endl; return -1; }
     
     std::ifstream::pos_type pos = ifs.tellg();
     res.resize(pos);
     ifs.seekg(0, std::ios::beg);
     ifs.read(&res[0], pos);
     ifs.close();
+    
+    return 0;
 }
 
 // Reads UTF-8 file to str32

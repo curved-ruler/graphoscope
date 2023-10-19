@@ -10,7 +10,7 @@
 namespace cr {
 
 
-class aeroplane : public vehicle, public rigid_body
+class spaceship : public vehicle, public rigid_body
 {
     private:
         camera* cam;
@@ -28,8 +28,8 @@ class aeroplane : public vehicle, public rigid_body
         float thrust;
         
     public:
-        aeroplane  (camera* c, const std::string& vfile);
-        virtual ~aeroplane ();
+        spaceship  (camera* c, const std::string& vfile);
+        virtual ~spaceship ();
         
         virtual void update_cam ();
         virtual void control    (int key, int action);

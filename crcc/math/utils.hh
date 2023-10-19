@@ -39,7 +39,7 @@ namespace cr {
     template <typename T>
     inline T modf (T x, T m)
     {
-        return (x - std::floor(x / m)*m);
+        return (x - floor(x / m)*m);
     }
     
     template <typename T>

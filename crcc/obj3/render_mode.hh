@@ -67,6 +67,8 @@ public:
     uint8 proctype;
     static const uint8 pop_n = 2;
     
+    bool has_normal;
+    
     
     float back[4];
     float col[4];

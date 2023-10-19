@@ -392,6 +392,21 @@ class vec4_t
             return false;
         }
         
+        vec4_t<T> operator+ (const vec4_t<T>& bv) const
+        {
+            return vec4_t<T>(this->x + bv.x, this->y + bv.y, this->z + bv.z, this->w + bv.w);
+        }
+        
+        vec4_t<T> operator* (const vec4_t<T>& bv) const
+        {
+            return vec4_t<T>(this->x*bv.x, this->y*bv.y, this->z*bv.z, this->w*bv.w);
+        }
+        
+        vec4_t<T> operator* (T d) const
+        {
+            return vec4_t<T>(x*d, y*d, z*d, w*d);
+        }
+        
         T length() const
         {
             return sqrt(this->x*this->x + this->y*this->y + this->z*this->z + this->w*this->w);
@@ -431,16 +446,16 @@ class vec4_t
             setlength((T)1);
         }
         
-        vec2_t<T> normal() const
+        vec4_t<T> normal() const
         {
             T len = length();
             if (len > cr::eps)
             {
-                return vec2_t<T>(x / len, y / len, z / len, w / len);
+                return vec4_t<T>(x / len, y / len, z / len, w / len);
             }
             else
             {
-                return vec2_t<T>((T)0, (T)0, (T)0, (T)0);
+                return vec4_t<T>((T)0, (T)0, (T)0, (T)0);
             }
         }
 
@@ -504,6 +519,17 @@ template<typename T>
 inline vec3_t<T> floor (const vec3_t<T>& v)
 {
     return vec3_t<T>(std::floor(v.x), std::floor(v.y), std::floor(v.z));
+}
+
+template<typename T>
+inline vec2_t<T> absv (const vec2_t<T>& v)
+{
+    return vec2_t<T>(std::abs(v.x), std::abs(v.y));
+}
+template<typename T>
+inline vec3_t<T> absv (const vec3_t<T>& v)
+{
+    return vec3_t<T>(std::abs(v.x), std::abs(v.y), std::abs(v.z));
 }
 
 

@@ -19,7 +19,7 @@ std::string combine_path   (const std::string& p1, const std::string& p2);
 std::string get_folder     (const std::string& file);
 
 std::string read_file      (const std::string& fname);
-void        read_file_b    (const char* filename, std::vector<char>& res);
+int         read_file_b    (const char* filename, std::vector<char>& res);
 // Reads UTF-8 file to str32
 void        read_file_u32  (const char* filename, str32& res);
 // Writes str32 to UTF-8 file

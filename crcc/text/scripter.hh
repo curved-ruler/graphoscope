@@ -20,11 +20,11 @@ class scripter
     private:
         std::vector< script_variable > variables;
         
-        int lnum;
+        size_t lnum;
         
     public:
         scripter();
-        scripter(const std::string& filepath);
+        scripter(const std::string& script_str);
         ~scripter();
         
         void setobj(const std::string& prefix, char eq, const std::string& valuedesc, int depth);

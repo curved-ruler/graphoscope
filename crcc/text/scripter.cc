@@ -9,20 +9,16 @@ namespace cr {
 
 scripter::scripter() {}
 
-scripter::scripter(const std::string& filepath)
+scripter::scripter(const std::string& script_str)
 {
-    std::ifstream file(filepath);
-    if (!file)
-    {
-        std::cerr << "ERROR: ini file does not exist: " << filepath << std::endl;
-        return;
-    }
-    
     std::string current_statement;
     std::string obj_prefix("");
     std::string line;
-    bool noteof;
+    
+    cr::stringlines slines(script_str);
+    size_t lmax = slines.line_cnt();
     lnum = 0;
+    
     do
     {
         current_statement = "";
@@ -30,7 +26,7 @@ scripter::scripter(const std::string& filepath)
         bool closed;
         do
         {
-            noteof = getline_winlin(file, line);
+            line = slines.line(lnum);
             ++lnum;
             
             size_t first_comm_pos = line.find("//");
@@ -43,7 +39,7 @@ scripter::scripter(const std::string& filepath)
             
             closed = parenthesis_check(current_statement);
             
-        } while (!closed && noteof);
+        } while (!closed && lnum <= lmax);
         
         // trailing empty lines in file
         if (current_statement.size() == 0) continue;
@@ -52,7 +48,7 @@ scripter::scripter(const std::string& filepath)
         
         setobj("", '=', current_statement, 0);
     }
-    while (noteof);
+    while (lnum <= lmax);
     
     //for (size_t i = 0 ; i<variables.size() ; ++i) { std::cout << "N: " << variables[i].name << " V: " << variables[i].value << std::endl; }
 }

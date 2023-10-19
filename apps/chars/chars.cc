@@ -10,7 +10,7 @@
 
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
-#include <gcrypt.h>
+//#include <gcrypt.h>
 
 
 glfw_loop* global_loop;
@@ -63,7 +63,9 @@ class c_scene : public scene
             sysconf.getvalue("folders.font_dir", font_dir);
             font_dir = cr::spath(font_dir);
             sysconf.getvalue("ui.textconf", font_conf);
-            cr::scripter s(target_dir + font_dir + font_conf);
+            
+            std::string uie_conf = cr::read_file(target_dir + font_dir + font_conf);
+            cr::scripter s(uie_conf);
             uie = new gs::uiengine(s);
             
             uie->settings.shader_dir = rmode.shader_dir;
@@ -210,7 +212,8 @@ class c_scene : public scene
 
 int main ()
 {
-    cr::scripter ttconf("chars.conf");
+    std::string conf = cr::read_file("chars.conf");
+    cr::scripter ttconf(conf);
     
     global_loop = new glfw_loop(ttconf);
     scene* s = new c_scene(ttconf);

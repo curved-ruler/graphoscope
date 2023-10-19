@@ -11,7 +11,7 @@ namespace cr {
 
 const uint8 integer::blocksize = 8;
 const uint8 integer::MSB       = 128;
-const uint8 integer::NaN       = -4;
+const int8  integer::NaN       = -4;
 
 integer::integer() {}
 
@@ -256,7 +256,7 @@ integer& integer::operator<<= (uint8 s)
 size_t integer::msb() const
 {
     int8 s = sign();
-    if (s == NaN) return -1;
+    if (s == NaN) return 0;
     
     uint8 mask = MSB >> 1;
     bool bitcmp  = (s < 0) ?    0 : 1;

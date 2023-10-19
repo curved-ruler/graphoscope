@@ -5,3 +5,4 @@
 #include "spectator_cam.hh"
 #include "vehicle.hh"
 #include "aeroplane.hh"
+#include "spaceship.hh"

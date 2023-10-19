@@ -22,6 +22,8 @@ render_mode::render_mode()
     
     colourmode = 0;
     
+    has_normal = false;
+    
     pointcnt = 6;
     pointsize = 2.0f;
     
