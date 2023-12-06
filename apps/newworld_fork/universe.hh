@@ -4,7 +4,6 @@
 #include <crcc/crcc.hh>
 #include <gscc/gscc.hh>
 #include <gsgl/gsgl.hh>
-#include <gsui/gsui.hh>
 #include "cubic_sphere_planet.hh"
 
 class universe : public scene

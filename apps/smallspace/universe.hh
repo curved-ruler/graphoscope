@@ -22,6 +22,8 @@ class universe : public scene
         cr::vec3 up;
         float scale;
         
+        cr::vec3 up2; cr::vec3 look2; float up2a, look2a; cr::mat4 a,b;
+        
         //cr::mesh_ux* starsCpu;
         cr::rrr_buffers starsGpu;
         

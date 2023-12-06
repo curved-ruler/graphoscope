@@ -135,20 +135,12 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
             norm.normalize();
             
             float zm = std::max(v0.z, std::max(v1.z, std::max(v2.z, v3.z)));
-            unsigned int ci = planet->pal->get(zm);
+            unsigned int ci  = planet->pal->get(zm);
+            unsigned int ci2 = planet->pal2->get(zm);
             
-            //float zm2 = std::acos( cr::dot(norm, cr::vec3{0,0,1}) );
-            //unsigned int ci2 = planet->pal2->get(zm2);
+            float zm2 = std::abs( std::acos( cr::dot(norm, cr::vec3{0,0,1}) ) );
+            col.albedo = zm2 < 0.8f ? planet->pal->cols[ci] : planet->pal2->cols[ci2];
             
-            /*
-            if (v0.z < 0.0f) v0.z = 0.0f;
-            if (v1.z < 0.0f) v1.z = 0.0f;
-            if (v2.z < 0.0f) v2.z = 0.0f;
-            if (v3.z < 0.0f) v3.z = 0.0f;
-            */
-            
-            //col.albedo = cr::mix(planet->pal->cols[ci], planet->pal2->cols[ci2], 0.3f);
-            col.albedo = planet->pal->cols[ci];
             gridgeom->set_tri(ti, v0, v1, v2, col, norm);
             gridgeom->set_tri(ti+1, v1, v3, v2, col, norm);
             ti += 2;
@@ -586,7 +578,7 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     idiceh  = new cr::idice(123, 0, H-1);
     fd      = new cr::fdice(120, -1.0f, 1.0f);
     
-    /*
+    
     cr::height_pal* MAT = new cr::height_pal(6);
     MAT->cols[0] = {0.0f ,  0.0f ,  0.2f};
     MAT->cols[1] = {0.235f, 0.435f, 1.0f};
@@ -598,10 +590,21 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     MAT->limits[1] =  -4.0f;
     MAT->limits[2] =   0.0f;
     MAT->limits[3] =   7.0f;
-    MAT->limits[4] =  40.0f;
+    MAT->limits[4] =  33.0f;
     
-    pal = new cr::height_pal(*MAT, 4);
-    */
+    pal = new cr::height_pal(*MAT, 6);
+    
+    cr::height_pal* MAT2 = new cr::height_pal(4);
+    MAT2->cols[0] = {0.0f ,  0.0f ,  0.2f};
+    MAT2->cols[1] = {0.235f, 0.435f, 1.0f};
+    MAT2->cols[2] = {0.5f, 0.5f, 0.5f};
+    MAT2->cols[3] = {0.7f, 0.7f, 0.7f};
+    MAT2->limits[0] = -23.0f;
+    MAT2->limits[1] =  -4.0f;
+    MAT2->limits[2] =  10.0f;
+    
+    pal2 = new cr::height_pal(*MAT2, 6);
+    
     
     /*
     cr::height_pal* MAT2 = new cr::height_pal(2);
@@ -616,7 +619,7 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     pal2 = new cr::height_pal(*MAT2, 4);
     */
     
-    
+    /*
     cr::height_pal* MAT = new cr::height_pal(3);
     MAT->cols[0] = {0.0f , 0.0f , 0.2f};
     //MAT->cols[1] = {0.235f, 0.435f, 0.8f};
@@ -627,11 +630,13 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     MAT->limits[1] =  16.0f;
     
     pal = new cr::height_pal(*MAT, 8);
-    
+    */
     
     noisegen = new ter::noise();
     noisegen->xscale = 15.0f;
     noisegen->yscale = 15.0f;
+    
+    delnoise_gen = nullptr;
     
     parts = new terrain_part*[pw*ph];
     for (int j=0 ; j<ph ; ++j)
@@ -652,8 +657,12 @@ simple_planet::~simple_planet()
     delete idicew;
     delete idiceh;
     delete fd;
+    
     delete noisegen;
+    if (delnoise_gen) delete delnoise_gen;
+    
     delete pal;
+    delete pal2;
     delete map;
     delete map_tmp;
     delete[] partFiles;
@@ -666,6 +675,15 @@ simple_planet::~simple_planet()
         }
         delete[] parts;
     }
+}
+
+void simple_planet::init_delnoise()
+{
+    delnoise_gen = new ter::del_noise();
+    delnoise_gen->xscale = 1.0f;
+    delnoise_gen->yscale = 1.0f;
+    delnoise_gen->xp = 0.0f;
+    delnoise_gen->yp = 0.0f;
 }
 
 void simple_planet::reset ()
@@ -1025,6 +1043,23 @@ void simple_planet::generate_warp (bool slice)
     updateGpu(slice);
 }
 
+void simple_planet::generate_delaunay (bool slice)
+{
+    contoured = false;
+    
+    if (!delnoise_gen) init_delnoise();
+    
+    for (int x=0 ; x<W ; ++x)
+    {
+        for (int y=0 ; y<H ; ++y)
+        {
+            map->height[y*W + x] = 1.5f * delnoise_gen->fbm(float(x), float(y));
+        }
+    }
+    edgefit(5);
+    updateGpu(slice);
+}
+
 void simple_planet::erosion_step ()
 {
     contoured = false;
@@ -1045,7 +1080,13 @@ void simple_planet::quantize(float q)
 void simple_planet::filter ()
 {
     contoured = false;
-    ter::laplacian2(map->height, map_tmp->height, W, H);
+    float k[9] = {
+        0.0f,  -1.0f,  0.0f,
+       -1.0f,   5.0f, -1.0f,
+        0.0f,  -1.0f,  0.0f
+    };
+    ter::convolve(map->height, map_tmp->height, W, H, k, 3, 3, 1.0f);
+    //ter::laplacian2(map->height, map_tmp->height, W, H);
     updateGpu(false);
 }
 
@@ -1074,7 +1115,7 @@ void simple_planet::rdinit ()
 void simple_planet::rd ()
 {
     contoured = false;
-    for (int i=0 ; i<200 ; ++i)
+    for (int i=0 ; i<2000 ; ++i)
     {
         ter::reaction_diffusion(map->sediment1, map_tmp->sediment1, map->sediment2, map_tmp->sediment2, W, H, 10.0f);
     }

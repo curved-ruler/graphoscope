@@ -1,8 +1,7 @@
 
 #include <iostream>
-#include <string>
 
-#include "grid_scene.hh"
+#include "universe.hh"
 #include <apps/appbase/glfw_loop.hh>
 #include <crcc/crcc.hh>
 
@@ -15,13 +14,11 @@ void mousebutton_callback (GLFWwindow* /*wnd*/, int button, int action, int mods
 
 int main ()
 {
-    std::string confstr = cr::read_file("grid.conf");
-    cr::scripter ttconf(confstr);
+    cr::scripter ttconf("new_world.conf");
     
     global_loop = new glfw_loop(ttconf);
-    scene* tts = new grid_scene(ttconf);
-    global_loop->set_scene(tts);
-    
+    scene* nws = new universe(ttconf);
+    global_loop->set_scene(nws);
     
     glfwSetKeyCallback        (global_loop->window, key_callback);
     glfwSetScrollCallback     (global_loop->window, scroll_callback);
@@ -32,8 +29,7 @@ int main ()
     int ret = global_loop->loop();
     global_loop->done();
     
-    delete tts;
     delete global_loop;
-    
+    delete nws;
     return ret;
 }

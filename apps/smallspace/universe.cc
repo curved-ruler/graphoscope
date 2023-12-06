@@ -44,12 +44,17 @@ universe::universe (cr::scripter& conf) : scene(conf)
     
     
     
-    shipCpu = cr::bm1_to_meshux(target_dir + std::string("mesh/ship_000.bm1"));
+    shipCpu = cr::bm1_to_meshux(target_dir + std::string("mesh/spaceship_a.bm1"));
     gsgl::MUXtoGPU(*shipCpu, shipGpu);
-    pos  = {  0, 0, 0 };
-    look = { -1, 0, 0 };
-    up   = {  0, 0, 1 };
+    pos   = {  0, 0, 0 };
+    look  = {  1, 0, 0 };
+    up    = {  0, 0, 1 };
     scale = 1.0f;
+    
+    up2    = {  0, 0, 1 };
+    look2  = {  1, 0, 0 };
+    up2a   = 0.0f;
+    look2a = 0.0f;
     
     
     p1 = new planet(target_dir + std::string("mesh/planet_001.bm1"));
@@ -152,7 +157,7 @@ void universe::render ()
     
     rmode.objtype = 1;
     m0  = cr::move_mat(cameras[0]->pos);
-    rrr_n->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+    //rrr_n->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
     rrr_n->render(*(cameras[0]), m0, shipGpu);
     
     m0  = cr::move_mat(p1->pos);
@@ -195,8 +200,45 @@ void universe::mousemove (float /*xpos*/, float /*ypos*/, float xdiff, float ydi
     {
         float kd = 0.4f*cr::dtor;
         
-        cr::vec3 left = cr::cross(cameras[0]->up, cameras[0]->look);
-        cr::quat qx(kd*xdiff, cameras[0]->up);
+        //float neg = cr::dot(look, look2);
+        //neg = neg > 0.0f ? -1.0f : 1.0f;
+        up2a   += kd*xdiff;
+        look2a -= kd*ydiff;
+        cr::vec3 left = cr::cross(look2, up2);
+        float ls = left.length();
+        /*
+        if (ls < 0.01)
+        {
+            left = cr::cross(up, up2);
+            ls = left.length();
+        }
+        */
+        left /= ls;
+        a = cr::rot_mat( up2a, up2);
+        b = cr::rot_mat( look2a, left);
+        
+        cameras[0]->up   = a*b*up2;
+        cameras[0]->look = a*b*look2;
+        
+        //cameras[0]->constrain();
+        
+        /*
+        if (std::abs(up2a) > 90.0f*cr::dtor || std::abs(look2a) > 90.0f*cr::dtor)
+        {
+            up2    = cameras[0]->up;
+            look2  = cameras[0]->look;
+            up2a   = 0.0f;
+            look2a = 0.0f;
+        }
+        */
+        
+        //up2 = cameras[0]->up;
+        //look2 = cameras[0]->look;
+        
+        
+        /*
+        cr::vec3 left = cr::cross(up2, cameras[0]->look);
+        cr::quat qx(kd*xdiff, up2);
         cr::quat qy(kd*ydiff, left);
         
         cameras[0]->up   = cr::rot_q(qx, cameras[0]->up);
@@ -204,7 +246,6 @@ void universe::mousemove (float /*xpos*/, float /*ypos*/, float xdiff, float ydi
         
         cameras[0]->up   = cr::rot_q(qy, cameras[0]->up);
         cameras[0]->look = cr::rot_q(qy, cameras[0]->look);
-        
-        cameras[0]->constrain();
+        */
     }
 }

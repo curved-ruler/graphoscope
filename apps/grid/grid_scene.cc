@@ -309,7 +309,8 @@ void grid_scene::keyaction(int key, int action, int mods)
             break;
             
         case keys::H :
-            planet->generate_warp(mods & keys::CONTROL_BIT);
+            //planet->generate_warp(mods & keys::CONTROL_BIT);
+            planet->generate_delaunay(mods & keys::CONTROL_BIT);
             planet->stat();
             break;
         
