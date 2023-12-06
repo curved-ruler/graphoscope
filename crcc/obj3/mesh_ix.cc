@@ -35,14 +35,14 @@ void mesh_ix::add_ver (vec3 v)
     vertices.push_back(v.y);
     vertices.push_back(v.z);
 }
-void mesh_ix::add_tri (int32 v0, int32 v1, int32 v2, int32 m)
+void mesh_ix::add_tri (uint32 v0, uint32 v1, uint32 v2, uint32 m)
 {
     triangles.push_back(v0);
     triangles.push_back(v1);
     triangles.push_back(v2);
     triangles.push_back(m);
 }
-void mesh_ix::add_lin (int32 v0, int32 v1, int32 m)
+void mesh_ix::add_lin (uint32 v0, uint32 v1, uint32 m)
 {
     triangles.push_back(v0);
     triangles.push_back(v1);
@@ -65,7 +65,7 @@ void mesh_ix::set_ver (unsigned int vi, vec3 v)
         vertices[vi*vsize + 2] = v.z;
     }
 }
-void mesh_ix::set_tri (unsigned int ti, int32 v0, int32 v1, int32 v2, int32 m)
+void mesh_ix::set_tri (unsigned int ti, uint32 v0, uint32 v1, uint32 v2, uint32 m)
 {
     if (ti < triangles.size()/tsize)
     {
@@ -75,7 +75,7 @@ void mesh_ix::set_tri (unsigned int ti, int32 v0, int32 v1, int32 v2, int32 m)
         triangles[ti*tsize + 3] = m;
     }
 }
-void mesh_ix::set_lin (unsigned int li, int32 v0, int32 v1, int32 m)
+void mesh_ix::set_lin (unsigned int li, uint32 v0, uint32 v1, uint32 m)
 {
     if (li < lines.size()/lsize)
     {

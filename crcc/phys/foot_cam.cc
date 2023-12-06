@@ -56,7 +56,7 @@ void foot_cam::step(int key, int action, int /*mods*/)
 void foot_cam::look(float xdiff, float ydiff)
 {
     //std::cout << "X: " << xdiff << std::endl;
-    float kd = 0.9f;
+    float kd = 0.9f * dtor;
     vec3 zi(0.0f, 0.0f, 1.0f);
     vec3 left = cross(cam->up, cam->look);
     quat qx(kd*xdiff, zi);

@@ -10,6 +10,8 @@ namespace cr {
 aeroplane::aeroplane (camera* c, const std::string& /*vfile*/)
 {
     cam = c;
+    pos = vec3{ cam->pos.x, cam->pos.y - 0.5f, cam->pos.x - 0.3f } ;
+    //orient = lu_transf(cam->look ,cam->up);
     //campos.set(0.0f, -0.5f, -0.3f);
     //geometry = new r::McDrawable(vfile);
     
@@ -44,13 +46,15 @@ void aeroplane::update_cam ()
     vec3 up    = rot_q(orient, zi);
     vec3 look  = rot_q(orient, xi);
     vec3 right = cross(look, up);
-    up /= 10.0;
-    look /= 10.0;
+    //up.normalize();
+    //look.normalize();
+    up /= 5.0f;
+    look /= 5.0f;
     vec3 dir = -look + up*0.5f;
     
     cam->pos  = pos + dir * (cam->focal);
     cam->look = pos - cam->pos;
-    cam->up   = cross(right, cam->look);
+    cam->up   = -cross(right, cam->look); // ??? why the "-"
     cam->constrain();
 }
 
@@ -80,7 +84,7 @@ void aeroplane::tick (float dt)
     vec3 look = rot_q(orient, xi);
     vec3 up = rot_q(orient, zi);
     vec3 right = cross(look, up);
-    float vrot = velocity.length() * 300.0f;
+    float vrot = velocity.length() * 30.0f;
     if (vrot > 0.7f) vrot = 0.7f;
     
     if (forw) {

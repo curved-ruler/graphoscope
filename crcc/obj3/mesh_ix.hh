@@ -17,9 +17,9 @@ class mesh_ix
         
     public:
         std::vector<material> materials;
-        std::vector<real>     vertices;
-        std::vector<int32>    triangles;
-        std::vector<int32>    lines;
+        std::vector<float>    vertices;
+        std::vector<uint32>   triangles;
+        std::vector<uint32>   lines;
         
         
     public:
@@ -31,13 +31,13 @@ class mesh_ix
         
         void add_mat (material m);
         void add_ver (vec3 v);
-        void add_tri (int32 v0, int32 v1, int32 v2, int32 m);
-        void add_lin (int32 v0, int32 v1, int32 m);
+        void add_tri (uint32 v0, uint32 v1, uint32 v2, uint32 m);
+        void add_lin (uint32 v0, uint32 v1, uint32 m);
         
         void set_mat (unsigned int mi, material m);
         void set_ver (unsigned int vi, vec3 v);
-        void set_tri (unsigned int ti, int32 v0, int32 v1, int32 v2, int32 m);
-        void set_lin (unsigned int li, int32 v0, int32 v1, int32 m);
+        void set_tri (unsigned int ti, uint32 v0, uint32 v1, uint32 v2, uint32 m);
+        void set_lin (unsigned int li, uint32 v0, uint32 v1, uint32 m);
 };
 
 

@@ -143,7 +143,7 @@ inline void lu_constrain(vec3& look, vec3& up)
 }
 
 // NOT TESTED
-inline quat lu_mat(vec3 look, vec3 up)
+inline quat lu_transf(vec3 look, vec3 up)
 {
     vec3 xi = vec3(1,0,0);
     vec3 zi = vec3(0,0,1);
@@ -152,7 +152,7 @@ inline quat lu_mat(vec3 look, vec3 up)
     vec3 v1 = cross(xi, look);
     v1.normalize();
     
-    if (v1.lenn() > 0.5)
+    if (v1.lenn() > 0.05)
     {
         q1   = quat( std::acos(dot(xi, look)), v1 );
         zi   = rot_q(q1, zi);
@@ -162,7 +162,7 @@ inline quat lu_mat(vec3 look, vec3 up)
     vec3 v2 = cross(zi, up);
     v2.normalize();
     
-    if (v2.lenn() > 0.5)
+    if (v2.lenn() > 0.05)
     {
         q2   = quat( std::acos(dot(zi, up)), v2 );
     }

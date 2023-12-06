@@ -9,10 +9,11 @@ namespace cr {
 
 class rigid_body
 {
-    protected:
+    public:
         vec3 pos;
         quat orient;
         
+    protected:
         float damp;
         float adamp;
         float maxvel;

@@ -28,4 +28,6 @@ struct token
     std::string name;
 };
 
+char** keywords;
+
 }

@@ -5,4 +5,6 @@
 #include "mesh_ux.hh"
 #include "mesh_ix.hh"
 #include "mesh_converter.hh"
+
 #include "render_mode.hh"
+#include "renderer.hh"

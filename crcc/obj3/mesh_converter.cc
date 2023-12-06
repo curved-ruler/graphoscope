@@ -2,6 +2,7 @@
 #include "mesh_converter.hh"
 
 #include "../math/mu.hh"
+#include "../gen/bitutils.hh"
 #include "material.hh"
 
 #include <cstdint>
@@ -141,7 +142,7 @@ mesh_ix* bm1_to_meshix (const std::string& filename)
     
     for (unsigned int i=0 ; i<v ; ++i)
     {
-        retmesh->set_ver(i, vec3{ verts[i*3], verts[i*3 + 1], verts[i*3 + 1] });
+        retmesh->set_ver(i, vec3{ verts[i*3], verts[i*3 + 1], verts[i*3 + 2] });
     }
     
     for (unsigned int i=0 ; i<t ; ++i)
@@ -164,6 +165,106 @@ mesh_ix* bm1_to_meshix (const std::string& filename)
     delete[] lc;
     
     return retmesh;
+}
+
+
+
+mesh_ux* terr_to_meshux (const std::string& filename)
+{
+    std::ifstream file(filename, std::ios::in | std::ios::binary);
+    if (!file)
+    {
+        std::cout << "ERROR: 'terr' file does not exists: " << filename << std::endl;
+        return nullptr;
+    }
+    
+    uint32 nx;
+    uint32 ny;
+    file.read((char*)&nx, sizeof(uint32));
+    file.read((char*)&ny, sizeof(uint32));
+    
+    uint32 t = (nx)*(ny)*2;
+    //uint32 l = (nx)*(ny)*2 + (nx+ny);
+    uint32 l = (nx)*(ny)*2;
+    uint32 p = nx*ny;
+    mesh_ux* retmesh = new mesh_ux(t, l, p);
+    
+    float  Z[(nx+1)*(ny+1)];
+    uint32 C[(nx+1)*(ny+1)];
+    
+    file.read((char*)Z, sizeof(float)  * (nx+1)*(ny+1));
+    file.read((char*)C, sizeof(uint32) * (nx+1)*(ny+1));
+    
+    file.close();
+    
+    float z1,z2,z3,z4;
+    material mat;
+    //float scale = 1.0f / 20.0f;
+    float scale = 1.0f;
+    
+    for (uint32 y=0 ; y<ny ; ++y)
+    for (uint32 x=0 ; x<nx ; ++x)
+    {
+        z1 = Z[y*(nx+1)+x];
+        z2 = Z[(y+1)*(nx+1)+x];
+        z3 = Z[(y)*(nx+1)+(x+1)];
+        z4 = Z[(y+1)*(nx+1)+(x+1)];
+        
+        z1 = z1 * scale;
+        z2 = z2 * scale;
+        z3 = z3 * scale;
+        z4 = z4 * scale;
+        
+        
+        uint32 ci = C[y*(nx+1)+x];
+        uint8 rr,gg,bb,aa;
+        get_bytes(ci, rr, gg, bb, aa);
+        mat.albedo.x = float(rr)/255.0f;
+        mat.albedo.y = float(gg)/255.0f;
+        mat.albedo.z = float(bb)/255.0f;
+        
+        retmesh->set_tri((y*(nx)+x)*2,
+                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y+1, z2 },
+                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y,   z1 },
+                         //vec3{ -float(nx)/2.0f+x+1, -float(ny)/2.0f+y,   z3 },
+                         vec3{ float(x),   float(y+1), z2 },
+                         vec3{ float(x),   float(y),   z1 },
+                         vec3{ float(x+1), float(y),   z3 },
+                         mat);
+        
+        retmesh->set_tri((y*(nx)+x)*2 + 1,
+                         //vec3{ -float(nx)/2.0f+x+1, -float(ny)/2.0f+y,   z3 },
+                         //vec3{ -float(nx)/2.0f+x+1, -float(ny)/2.0f+y+1, z4 },
+                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y+1, z2 },
+                         vec3{ float(x+1), float(y),   z3 },
+                         vec3{ float(x+1), float(y+1), z4 },
+                         vec3{ float(x),   float(y+1), z2 },
+                         mat);
+        
+        retmesh->set_lin((y*(nx)+x)*2,
+                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y,   z1 },
+                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y+1, z2 },
+                         vec3{ float(x),   float(y),   z1 },
+                         vec3{ float(x),   float(y+1), z2 },
+                         mat);
+        
+        retmesh->set_lin((y*(nx)+x)*2 + 1,
+                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y,   z1 },
+                         //vec3{ -float(nx)/2.0f+x+1, -float(ny)/2.0f+y,   z3 },
+                         vec3{ float(x),   float(y),   z1 },
+                         vec3{ float(x+1), float(y),   z3 },
+                         mat);
+        
+        retmesh->set_pnt((y*(nx)+x),
+                         //vec3{ -float(nx)/2.0f+x + 0.5f, -float(ny)/2.0f+y + 0.5f, (z1+z2+z3+z4)/4.0f },
+                         vec3{ float(x) + 0.5f, float(y) + 0.5f, (z1+z2+z3+z4)/4.0f },
+                         mat);
+    }
+    
+    return retmesh;
+    
+    //delete[] z;
+    //delete[] c;
 }
 
 }
