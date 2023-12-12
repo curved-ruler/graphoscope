@@ -136,10 +136,11 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
             
             float zm = std::max(v0.z, std::max(v1.z, std::max(v2.z, v3.z)));
             unsigned int ci  = planet->pal->get(zm);
-            unsigned int ci2 = planet->pal2->get(zm);
+            //unsigned int ci2 = planet->pal2->get(zm);
             
-            float zm2 = std::abs( std::acos( cr::dot(norm, cr::vec3{0,0,1}) ) );
-            col.albedo = zm2 < 0.8f ? planet->pal->cols[ci] : planet->pal2->cols[ci2];
+            //float zm2 = std::abs( std::acos( cr::dot(norm, cr::vec3{0,0,1}) ) );
+            //col.albedo = zm2 < 0.8f ? planet->pal->cols[ci] : planet->pal2->cols[ci2];
+            col.albedo = planet->pal->cols[ci];
             
             gridgeom->set_tri(ti, v0, v1, v2, col, norm);
             gridgeom->set_tri(ti+1, v1, v3, v2, col, norm);
@@ -592,7 +593,7 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     MAT->limits[3] =   7.0f;
     MAT->limits[4] =  33.0f;
     
-    pal = new cr::height_pal(*MAT, 6);
+    pal2 = new cr::height_pal(*MAT, 6);
     
     cr::height_pal* MAT2 = new cr::height_pal(4);
     MAT2->cols[0] = {0.0f ,  0.0f ,  0.2f};
@@ -603,7 +604,7 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     MAT2->limits[1] =  -4.0f;
     MAT2->limits[2] =  10.0f;
     
-    pal2 = new cr::height_pal(*MAT2, 6);
+    pal = new cr::height_pal(*MAT2, 6);
     
     
     /*
@@ -797,7 +798,7 @@ void simple_planet::save(const std::string& dir, const std::string& name_base)
         {
             std::stringstream ss("");
             ss << name_base << "_" << j << "_" << i;
-            output << ss.str() << ".bm1" << std::endl;
+            output << ss.str() << ".terr" << std::endl;
             savepart(dir, ss.str(), i, j);
         }
     }
@@ -807,129 +808,55 @@ void simple_planet::save(const std::string& dir, const std::string& name_base)
 
 void simple_planet::savepart (const std::string& dir, const std::string& name, int i, int j)
 {
-    std::ofstream output(dir + name + ".bm1", std::ios::binary);
+    std::ofstream output(dir + name + ".terr", std::ios::binary);
     
     unsigned int Wu  = partsize;
     unsigned int PWu = pw;
-    unsigned int pyu = j;
-    unsigned int pxu = i;
     
-    unsigned int ui0, ui1, ui2;
-    float f0, f1, f2;
+    float f0, f1, f2, f3;
     
-    ui0 = 1;
-    output.write((char*)&ui0, sizeof(unsigned int));
-    ui0 = pal->colnum;
-    output.write((char*)&ui0, sizeof(unsigned int));   // M
-    ui0 = (Wu+1)*(Wu+1);
-    output.write((char*)&ui0, sizeof(unsigned int)); // V
-    ui0 = (Wu)*(Wu)*2;
-    output.write((char*)&ui0, sizeof(unsigned int)); // T
-    output.write((char*)&ui0, sizeof(unsigned int)); // L
+    output.write((char*)&partsize, sizeof(unsigned int));
+    output.write((char*)&partsize, sizeof(unsigned int));
     
-    for (int ii = 0 ; ii<pal->colnum ; ++ii)
+    for (unsigned int y=j*Wu ; y<=(j+1)*Wu ; ++y)
     {
-        f0 = pal->cols[ii].x;
-        f1 = pal->cols[ii].y;
-        f2 = pal->cols[ii].z;
-        output.write((char*)&f0, sizeof(float));
-        output.write((char*)&f1, sizeof(float));
-        output.write((char*)&f2, sizeof(float));
-    }
-    
-    float yc = 0.0f;
-    for (unsigned int y=pyu*Wu ; y<=(pyu+1)*Wu ; ++y)
-    {
-        float xc = 0.0f;
-        for (unsigned int x=pxu*Wu ; x<=(pxu+1)*Wu ; ++x)
+        for (unsigned int x=i*Wu ; x<=(i+1)*Wu ; ++x)
         {
-            //f0 = xc*scale;
-            //f1 = yc*scale;
-            f0 = xc;
-            f1 = yc;
-            f2 = map->height[y*(Wu*PWu+1) + x];
-            if (f2 < 0.0f) f2 = 0.0f;
-            output.write((char*)&f0, sizeof(float));
-            output.write((char*)&f1, sizeof(float));
-            output.write((char*)&f2, sizeof(float));
+            f3 = map->height[y*(Wu*PWu+1) + x];
+            unsigned int ii = pal->get(f3);
+            //f3 *= scale;
+            if (f3 < 0.0f) f3 = 0.0f;
             
-            xc += 1.0f;
-        }
-        yc += 1.0f;
-    }
-    
-    for (unsigned int y=0 ; y<(Wu) ; ++y)
-    {
-        for (unsigned int x=0 ; x<(Wu) ; ++x)
-        {
-            ui0 = (y+1)*(Wu+1)+x;
-            ui1 =  y*(Wu+1)+x;
-            ui2 =  y*(Wu+1)+x+1;
-            output.write((char*)&ui0, sizeof(unsigned int));
-            output.write((char*)&ui1, sizeof(unsigned int));
-            output.write((char*)&ui2, sizeof(unsigned int));
+            f0 = pal->cols[ii].x;
+            f1 = pal->cols[ii].y;
+            f2 = pal->cols[ii].z;
+            uint32 c = (uint32(f0*255.0f)<<24) + (uint32(f1*255.0f)<<16) + (uint32(f2*255.0f)<<8);
             
-            ui0 = y*(Wu+1)+x+1;
-            ui1 = (y+1)*(Wu+1)+x+1;
-            ui2 = (y+1)*(Wu+1)+x;
-            output.write((char*)&ui0, sizeof(unsigned int));
-            output.write((char*)&ui1, sizeof(unsigned int));
-            output.write((char*)&ui2, sizeof(unsigned int));
+            output.write((char*)&f3, sizeof(float));
+            //output.write((char*)&c,  sizeof(uint32));
         }
     }
     
-    for (unsigned int y=0 ; y<(Wu) ; ++y)
+    for (unsigned int y=j*Wu ; y<=(j+1)*Wu ; ++y)
     {
-        for (unsigned int x=0 ; x<(Wu) ; ++x)
+        for (unsigned int x=i*Wu ; x<=(i+1)*Wu ; ++x)
         {
-            f0 = std::max(map->height[(pyu*Wu + y+1)*(Wu*PWu+1)+x+1 + pxu*Wu],
-                 std::max(map->height[(pyu*Wu + y+1)*(Wu*PWu+1)+x + pxu*Wu],
-                 std::max(map->height[(pyu*Wu + y)*(Wu*PWu+1)+x + pxu*Wu],
-                          map->height[(pyu*Wu + y)*(Wu*PWu+1)+x+1 + pxu*Wu])));
-            ui0 = pal->get(f0);
-            output.write((char*)&ui0, sizeof(unsigned int));
-            output.write((char*)&ui0, sizeof(unsigned int));
-        }
-    }
-    
-    
-    
-    for (unsigned int y=0 ; y<(Wu) ; ++y)
-    {
-        for (unsigned int x=0 ; x<(Wu) ; ++x)
-        {
-            ui0 = (y+1)*(Wu+1)+x;
-            ui1 = y*(Wu+1)+x;
-            output.write((char*)&ui0, sizeof(unsigned int));
-            output.write((char*)&ui1, sizeof(unsigned int));
+            f3 = map->height[y*(Wu*PWu+1) + x];
+            unsigned int ii = pal->get(f3);
+            //f3 *= scale;
+            //if (f3 < 0.0f) f3 = 0.0f;
             
-            ui0 = y*(Wu+1)+x;
-            ui1 = y*(Wu+1)+x+1;
-            output.write((char*)&ui0, sizeof(unsigned int));
-            output.write((char*)&ui1, sizeof(unsigned int));
-        }
-    }
-    
-    for (unsigned int y=0 ; y<(Wu) ; ++y)
-    {
-        for (unsigned int x=0 ; x<(Wu) ; ++x)
-        {
-            f0 = std::max(map->height[(pyu*Wu + y+1)*(Wu*PWu+1)+x+1 + pxu*Wu],
-                 std::max(map->height[(pyu*Wu + y+1)*(Wu*PWu+1)+x + pxu*Wu],
-                 std::max(map->height[(pyu*Wu + y)*(Wu*PWu+1)+x + pxu*Wu],
-                          map->height[(pyu*Wu + y)*(Wu*PWu+1)+x+1 + pxu*Wu])));
-            ui0 = pal->get(f0);
-            output.write((char*)&ui0, sizeof(unsigned int));
-            output.write((char*)&ui0, sizeof(unsigned int));
+            f0 = pal->cols[ii].x;
+            f1 = pal->cols[ii].y;
+            f2 = pal->cols[ii].z;
+            uint32 c = (uint32(f0*255.0f)<<24) + (uint32(f1*255.0f)<<16) + (uint32(f2*255.0f)<<8);
+            
+            //output.write((char*)&f3, sizeof(float));
+            output.write((char*)&c,  sizeof(uint32));
         }
     }
     
     output.close();
-    
-    if (contoured)
-    {
-        parts[j*pw+i]->save_contour(dir, name);
-    }
 }
 
 void simple_planet::create_contour ()
@@ -985,7 +912,7 @@ void simple_planet::generate_ds (bool slice, bool dsmap)
         }
         for (int px=0 ; px<W ; ++px)
         {
-            map->height[0*W + px]       = corners;
+            map->height[0*W + px]     = corners;
             map->height[(W-1)*W + px] = corners;
         }
     }
