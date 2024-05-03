@@ -93,6 +93,9 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
     col.albedo.x = 0.8f; col.albedo.y = 0.1f; col.albedo.z = 0.0f;
     zi.x = 0.0f; zi.y = 0.0f; zi.z = 1.0f;
     
+    //float zm2min = 10e5;
+    //float zm2max = -10e5;
+    
     for (int y=0 ; y<size ; ++y)
     {
         for (int x=0 ; x<size ; ++x)
@@ -134,13 +137,7 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
             norm = cr::cross( (v1-v0), (v2-v0) );
             norm.normalize();
             
-            float zm = std::max(v0.z, std::max(v1.z, std::max(v2.z, v3.z)));
-            unsigned int ci  = planet->pal->get(zm);
-            //unsigned int ci2 = planet->pal2->get(zm);
-            
-            //float zm2 = std::abs( std::acos( cr::dot(norm, cr::vec3{0,0,1}) ) );
-            //col.albedo = zm2 < 0.8f ? planet->pal->cols[ci] : planet->pal2->cols[ci2];
-            col.albedo = planet->pal->cols[ci];
+            col.albedo = planet->map->getc(px*size + x, py*size + y);
             
             gridgeom->set_tri(ti, v0, v1, v2, col, norm);
             gridgeom->set_tri(ti+1, v1, v3, v2, col, norm);
@@ -152,6 +149,7 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
         }
     }
     
+    //std::cout << "ZM2: [ " << zm2min << " ,  " << zm2max << " ]" << std::endl; 
     
     //gsgl::clearGPU(gpuGrid);
     gsgl::updateGPU(*gridgeom, gpuGrid);
@@ -581,19 +579,20 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     
     
     cr::height_pal* MAT = new cr::height_pal(6);
-    MAT->cols[0] = {0.0f ,  0.0f ,  0.2f};
-    MAT->cols[1] = {0.235f, 0.435f, 1.0f};
-    MAT->cols[2] = {0.592f, 0.423f, 0.235f};
-    MAT->cols[3] = {0.156f, 0.361f, 0.058f};
-    MAT->cols[4] = {0.08f,  0.20f,  0.09f};
-    MAT->cols[5] = {0.529f, 0.529f, 0.529f};
+    MAT->cols[0]   =     {0.0f ,  0.0f ,  0.2f};
     MAT->limits[0] = -23.0f;
+    MAT->cols[1]   =     {0.235f, 0.435f, 1.0f};
     MAT->limits[1] =  -4.0f;
+    MAT->cols[2]   =     {0.592f, 0.423f, 0.235f};
     MAT->limits[2] =   0.0f;
+    MAT->cols[3]   =     {0.156f, 0.361f, 0.058f};
     MAT->limits[3] =   7.0f;
-    MAT->limits[4] =  33.0f;
+    //MAT->cols[4]   =     {0.08f,  0.20f,  0.09f};
+    MAT->cols[4]   =     {0.529f, 0.529f, 0.529f};
+    MAT->limits[4] =  28.0f;
+    MAT->cols[5]   =     {0.529f, 0.529f, 0.529f};
     
-    pal2 = new cr::height_pal(*MAT, 6);
+    //pal = new cr::height_pal(*MAT, 5);
     
     cr::height_pal* MAT2 = new cr::height_pal(4);
     MAT2->cols[0] = {0.0f ,  0.0f ,  0.2f};
@@ -604,34 +603,34 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     MAT2->limits[1] =  -4.0f;
     MAT2->limits[2] =  10.0f;
     
-    pal = new cr::height_pal(*MAT2, 6);
+    pal2 = new cr::height_pal(*MAT2, 6);
     
     
-    /*
-    cr::height_pal* MAT2 = new cr::height_pal(2);
-    MAT2->cols[0] = {0.08f ,  0.33f ,  0.06f};
-    //MAT2->cols[1] = {0.3f, 0.25f, 0.09f};
-    MAT2->cols[1] = {0.60f, 0.80f, 1.00f};
-    //MAT2->cols[3] = {0.50f, 0.70f, 0.90f};
-    MAT2->limits[0] = 0.5f;
-    //MAT2->limits[1] = 0.8f;
-    //MAT2->limits[2] = 0.8f;
     
-    pal2 = new cr::height_pal(*MAT2, 4);
-    */
+    cr::height_pal* MAT3 = new cr::height_pal(4);
+    MAT3->cols[0] = {0.08f ,  0.33f ,  0.06f};
+    MAT3->cols[1] = {0.3f, 0.25f, 0.09f};
+    MAT3->cols[2] = {0.0f, 0.80f, 1.00f};
+    MAT3->cols[3] = {0.50f, 0.70f, 0.90f};
+    MAT3->limits[0] = -4.5f;
+    MAT3->limits[1] = 0.8f;
+    MAT3->limits[2] = 10.0f;
     
-    /*
-    cr::height_pal* MAT = new cr::height_pal(3);
-    MAT->cols[0] = {0.0f , 0.0f , 0.2f};
-    //MAT->cols[1] = {0.235f, 0.435f, 0.8f};
-    MAT->cols[1] = {0.24f, 0.46f, 0.86f};
-    //MAT->cols[2] = {0.2f, 0.4f, 1.0f};
-    MAT->cols[2] = {0.33f, 0.50f, 1.0f};
-    MAT->limits[0] = -22.0f;
-    MAT->limits[1] =  16.0f;
+    pal = new cr::height_pal(*MAT3, 4);
     
-    pal = new cr::height_pal(*MAT, 8);
-    */
+    
+    
+    cr::height_pal* MAT4 = new cr::height_pal(3);
+    MAT4->cols[0] = {0.0f , 0.0f , 0.2f};
+    //MAT4->cols[1] = {0.235f, 0.435f, 0.8f};
+    MAT4->cols[1] = {0.24f, 0.46f, 0.86f};
+    //MAT4->cols[2] = {0.2f, 0.4f, 1.0f};
+    MAT4->cols[2] = {0.33f, 0.50f, 1.0f};
+    MAT4->limits[0] = -22.0f;
+    MAT4->limits[1] =  16.0f;
+    
+    //pal = new cr::height_pal(*MAT, 8);
+    
     
     noisegen = new ter::noise();
     noisegen->xscale = 15.0f;
@@ -813,7 +812,7 @@ void simple_planet::savepart (const std::string& dir, const std::string& name, i
     unsigned int Wu  = partsize;
     unsigned int PWu = pw;
     
-    float f0, f1, f2, f3;
+    float f3;
     
     output.write((char*)&partsize, sizeof(unsigned int));
     output.write((char*)&partsize, sizeof(unsigned int));
@@ -823,14 +822,8 @@ void simple_planet::savepart (const std::string& dir, const std::string& name, i
         for (unsigned int x=i*Wu ; x<=(i+1)*Wu ; ++x)
         {
             f3 = map->height[y*(Wu*PWu+1) + x];
-            unsigned int ii = pal->get(f3);
-            //f3 *= scale;
-            if (f3 < 0.0f) f3 = 0.0f;
             
-            f0 = pal->cols[ii].x;
-            f1 = pal->cols[ii].y;
-            f2 = pal->cols[ii].z;
-            uint32 c = (uint32(f0*255.0f)<<24) + (uint32(f1*255.0f)<<16) + (uint32(f2*255.0f)<<8);
+            if (f3 < 0.0f) f3 = 0.0f;
             
             output.write((char*)&f3, sizeof(float));
             //output.write((char*)&c,  sizeof(uint32));
@@ -841,15 +834,8 @@ void simple_planet::savepart (const std::string& dir, const std::string& name, i
     {
         for (unsigned int x=i*Wu ; x<=(i+1)*Wu ; ++x)
         {
-            f3 = map->height[y*(Wu*PWu+1) + x];
-            unsigned int ii = pal->get(f3);
-            //f3 *= scale;
-            //if (f3 < 0.0f) f3 = 0.0f;
-            
-            f0 = pal->cols[ii].x;
-            f1 = pal->cols[ii].y;
-            f2 = pal->cols[ii].z;
-            uint32 c = (uint32(f0*255.0f)<<24) + (uint32(f1*255.0f)<<16) + (uint32(f2*255.0f)<<8);
+            cr::vec3 cc = map->col[y*(Wu*PWu+1) + x];
+            uint32 c = (uint8(cc.x*255.0f)<<24) + (uint8(cc.y*255.0f)<<16) + (uint8(cc.z*255.0f)<<8);
             
             //output.write((char*)&f3, sizeof(float));
             output.write((char*)&c,  sizeof(uint32));
@@ -918,6 +904,7 @@ void simple_planet::generate_ds (bool slice, bool dsmap)
     }
     
     ter::ds_square_grid(map->height, partsize, pw, ph);
+    color();
     updateGpu(slice);
 }
 
@@ -950,6 +937,7 @@ void simple_planet::crack ()
         }
     }
     }
+    color();
     updateGpu(true);
 }
 
@@ -966,7 +954,8 @@ void simple_planet::generate_warp (bool slice)
             map->height[y*W + x] = 1.5f * noisegen->domain_warp(float(x), float(y));
         }
     }
-    edgefit(32);
+    edgefit(16);
+    color();
     updateGpu(slice);
 }
 
@@ -984,6 +973,7 @@ void simple_planet::generate_delaunay (bool slice)
         }
     }
     edgefit(5);
+    color();
     updateGpu(slice);
 }
 
@@ -991,16 +981,19 @@ void simple_planet::erosion_step ()
 {
     contoured = false;
     ter::erosion_hydraulic(map);
+    color();
 }
 void simple_planet::erosion_2_step ()
 {
     contoured = false;
     ter::erosion_talus(map->height, W, H, 0.1f);
+    color();
 }
 
 void simple_planet::quantize(float q)
 {
     ter::quantize(map->height, W, H, q);
+    color();
     updateGpu(false);
 }
 
@@ -1014,6 +1007,7 @@ void simple_planet::filter ()
     };
     ter::convolve(map->height, map_tmp->height, W, H, k, 3, 3, 1.0f);
     //ter::laplacian2(map->height, map_tmp->height, W, H);
+    color();
     updateGpu(false);
 }
 
@@ -1021,6 +1015,7 @@ void simple_planet::golinit ()
 {
     contoured = false;
     ter::game_of_life_init(map->height, map_tmp->height, W, H);
+    color();
     updateGpu(false);
 }
 
@@ -1028,6 +1023,7 @@ void simple_planet::gol ()
 {
     contoured = false;
     ter::game_of_life(map->height, map_tmp->height, W, H);
+    color();
     updateGpu(false);
 }
 
@@ -1036,6 +1032,7 @@ void simple_planet::rdinit ()
     contoured = false;
     //rdcalc2();
     ter::reaction_diffusion_init(map->sediment1, map_tmp->sediment1, map->sediment2, map_tmp->sediment2, W, H, 10.0f);
+    color();
     updateGpu(false);
 }
 
@@ -1046,6 +1043,7 @@ void simple_planet::rd ()
     {
         ter::reaction_diffusion(map->sediment1, map_tmp->sediment1, map->sediment2, map_tmp->sediment2, W, H, 10.0f);
     }
+    color();
     updateGpu(false);
 }
 
@@ -1060,6 +1058,7 @@ void simple_planet::rdcalc ()
             map->height[y*W + x] = map->sediment1[y*W + x];
         }
     }
+    color();
     updateGpu(false);
 }
 void simple_planet::rdcalc2 ()
@@ -1108,7 +1107,55 @@ void simple_planet::edgefit (int k)
         }
     }
     
+    color();
     updateGpu(false);
+}
+
+void simple_planet::color()
+{
+    cr::vec3 v0, v1, v2, v3, norm;
+    
+    for (int y=0 ; y<map->H ; ++y)
+    {
+        for (int x=0 ; x<map->W ; ++x)
+        {
+            int x1 = (x == map->W-1) ? 0 : x+1;
+            int y1 = (y == map->H-1) ? 0 : y+1;
+            
+            v0.x = float(x);
+            v0.y = float(y);
+            v0.z = map->geth(x, y);
+            v1.x = x + 1.0f;
+            v1.y = float(y);
+            v1.z = map->geth(x1, y);
+            v2.x = float(x);
+            v2.y = y + 1.0f;
+            v2.z = map->geth(x, y1);
+            v3.x = x + 1.0f;
+            v3.y = y + 1.0f;
+            v3.z = map->geth(x1, y1);
+            
+            norm = cr::cross( (v1-v0), (v2-v0) );
+            norm.normalize();
+            
+            //float zm = std::max(v0.z, std::max(v1.z, std::max(v2.z, v3.z)));
+            //unsigned int ci  = pal->get(zm);
+            //unsigned int ci2 = pal2->get(zm);
+            
+            float zm2 = std::acos( cr::dot(norm, cr::vec3{0,0,1}) ) * 2.0f / cr::pi;
+            
+            //if (zm2 < zm2min) zm2min = zm2;
+            //if (zm2 > zm2max) zm2max = zm2;
+            
+            //col.albedo = zm2 < 0.8f ? pal->cols[ci] : pal2->cols[ci2];
+            //col.albedo = pal->cols[ci];
+            
+            //float hues[4] = {118.0f/360.0f, 70.0f/360.0f, 184.0f/360.0f, 147.0f/360.0f};
+            float hues[4] = {118.0f/360.0f, 118.0f/360.0f, 184.0f/360.0f, 147.0f/360.0f};
+            int huei = int(std::floor((3.0f*zm2 + 0.5f)));
+            map->col[y*W + x] = cr::hsv2rgb(cr::vec3 { hues[huei], 0.9, 0.9 } );
+        }
+    }
 }
 
 void simple_planet::stat ()

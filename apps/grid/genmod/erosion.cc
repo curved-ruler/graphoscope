@@ -16,6 +16,7 @@ terrain_data_square::terrain_data_square(int _w, int _h)
     {
         W = _w; H = _h;
         height = new float[W*H];
+        col    = new cr::vec3[W*H];
         water  = new float[W*H];
         flow   = new cr::vec2[W*H];
         sediment1 = new float[W*H];
@@ -27,6 +28,7 @@ terrain_data_square::terrain_data_square(int _w, int _h)
 terrain_data_square::~terrain_data_square()
 {
     delete[] height;
+    delete[] col;
     delete[] water;
     delete[] flow;
     delete[] sediment1;

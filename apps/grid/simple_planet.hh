@@ -68,6 +68,7 @@ class simple_planet
         
         cr::height_pal* pal;
         cr::height_pal* pal2;
+        //cr::vec3* mapcol;
         
         ter::noise*     noisegen;
         ter::del_noise* delnoise_gen;
@@ -121,6 +122,8 @@ class simple_planet
         void quantize(float q);
         void edgefit (int k);
         void create_contour();
+        
+        void color();
         
         void stat();
         

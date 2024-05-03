@@ -90,8 +90,8 @@ plain_planet::plain_planet (const std::string& mapfile)
     scale = 1.0f / 100.0f;
     pw = 0;
     ph = 0;
-    w = 3;
-    h = 3;
+    w = 5;
+    h = 5;
     xo1 = (-w) / 2;
     yo1 = (-h) / 2;
     partFiles = 0;
