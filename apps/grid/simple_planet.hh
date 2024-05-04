@@ -120,6 +120,7 @@ class simple_planet
         void rdcalc  ();
         void rdcalc2 ();
         void quantize(float q);
+        void level   (float l);
         void edgefit (int k);
         void create_contour();
         

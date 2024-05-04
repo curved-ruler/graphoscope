@@ -322,6 +322,10 @@ void grid_scene::keyaction(int key, int action, int mods)
         case keys::Q :
             planet->quantize(2.0f);
             break;
+        
+        case keys::L :
+            planet->level(0.0f);
+            break;
             
         case keys::R :
             for (int i=0 ; i<10 ; ++i) {
@@ -333,8 +337,11 @@ void grid_scene::keyaction(int key, int action, int mods)
             break;
             
         case keys::T :
-            planet->erosion_2_step();
+            for (int i=0 ; i<2 ; ++i) {
+                planet->erosion_2_step();
+            }
             planet->stat();
+            planet->updateGpu(false);
             break;
             
         case keys::MINUS :
@@ -359,10 +366,11 @@ void grid_scene::keyaction(int key, int action, int mods)
             /*
         case keys::BUT_5 :
             break;
-            
-        case keys::BUT_6 :
-            break;
             */
+        case keys::BUT_6 :
+            planet->generate_delaunay(false);
+            break;
+            
         case keys::BUT_7 :
             planet->create_contour();
             break;
