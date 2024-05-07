@@ -325,6 +325,7 @@ void grid_scene::keyaction(int key, int action, int mods)
         
         case keys::L :
             planet->level(0.0f);
+            planet->edgefit(4);
             break;
             
         case keys::R :
@@ -362,6 +363,10 @@ void grid_scene::keyaction(int key, int action, int mods)
         
         case keys::BUT_3 :
             sflow = !sflow;
+            break;
+        
+        case keys::BUT_4 :
+            planet->ridge();
             break;
             /*
         case keys::BUT_5 :

@@ -4,6 +4,7 @@
 #include <crcc/crcc.hh>
 #include <gsgl/gsgl.hh>
 #include "genmod/gen.hh"
+#include "genmod/noise.hh"
 #include "genmod/diamond_square.hh"
 #include "genmod/erosion.hh"
 #include "genmod/warp.hh"
@@ -119,6 +120,7 @@ class simple_planet
         void rdinit  ();
         void rdcalc  ();
         void rdcalc2 ();
+        void ridge   ();
         void quantize(float q);
         void level   (float l);
         void edgefit (int k);

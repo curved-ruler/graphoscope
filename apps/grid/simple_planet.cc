@@ -151,8 +151,9 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
     
     //std::cout << "ZM2: [ " << zm2min << " ,  " << zm2max << " ]" << std::endl; 
     
-    //gsgl::clearGPU(gpuGrid);
-    gsgl::updateGPU(*gridgeom, gpuGrid);
+    gsgl::clearGPU(gpuGrid);
+    //gsgl::updateGPU(*gridgeom, gpuGrid);
+    gsgl::MUXtoGPU(*gridgeom, gpuGrid);
     
     //std::cout << "GRID: " << gpuGrid.lin_buf << std::endl;
     
@@ -218,8 +219,8 @@ void terrain_part::readpart_plates(cr::height_pal* pal, ter::terrain_data_square
             
             //float zm = std::max(v0.z, std::max(v1.z, std::max(v2.z, v3.z)));
             unsigned int ci = pal->get(v0.z);
-            
             col.albedo = pal->cols[ci];
+            
             gridgeom->set_tri(ti, v0, v1, v2, col, norm);
             gridgeom->set_tri(ti+1, v1, v3, v2, col, norm);
             ti += 2;
@@ -309,8 +310,8 @@ void terrain_part::create_contour (cr::height_pal* pal, ter::terrain_data_square
             int z2 = ((planez > v2.z) ? -1 : 1 );
             int z3 = ((planez > v3.z) ? -1 : 1 );
             
-            float zm = std::max(v0.z, std::max(v1.z, std::max(v2.z, v3.z)));
-            unsigned int ci = pal->get(zm);
+            //float zm = std::max(v0.z, std::max(v1.z, std::max(v2.z, v3.z)));
+            //unsigned int ci = pal->get(zm);
             
             bool intersect = false;
             
@@ -378,7 +379,7 @@ void terrain_part::create_contour (cr::height_pal* pal, ter::terrain_data_square
                 cr::vec3 v4z(v4.x, v4.y, planez - dz);
                 cr::vec3 v5z(v5.x, v5.y, planez - dz);
                 
-                col.albedo = pal->cols[ci];
+                col.albedo = map->getc(px*size + x, py*size + y);
                 cgeom->add_tri(v5, v4,  v4z, col, newnorm);
                 cgeom->add_tri(v5, v4z, v5z, col, newnorm);
                 
@@ -457,7 +458,7 @@ void terrain_part::create_contour (cr::height_pal* pal, ter::terrain_data_square
                 cr::vec3 v4z(v4.x, v4.y, planez - dz);
                 cr::vec3 v5z(v5.x, v5.y, planez - dz);
                 
-                col.albedo = pal->cols[ci];
+                col.albedo = map->getc(px*size + x, py*size + y);
                 cgeom->add_tri(v5, v4,  v4z, col, newnorm);
                 cgeom->add_tri(v5, v4z, v5z, col, newnorm);
                 
@@ -905,6 +906,7 @@ void simple_planet::generate_ds (bool slice, bool dsmap)
     
     ter::ds_square_grid(map->height, partsize, pw, ph);
     edgefit(4);
+    color();
     updateGpu(slice);
 }
 
@@ -988,6 +990,19 @@ void simple_planet::erosion_2_step ()
     contoured = false;
     ter::erosion_talus(map->height, W, H, 0.1f);
     color();
+}
+
+void simple_planet::ridge ()
+{
+    for (int x=0 ; x<W ; ++x)
+    {
+        for (int y=0 ; y<H ; ++y)
+        {
+            map->height[y*W + x] = std::abs(map->height[y*W + x]) - (hmax/4.0);
+        }
+    }
+    color();
+    updateGpu(false);
 }
 
 void simple_planet::quantize(float q)
@@ -1085,18 +1100,17 @@ void simple_planet::rdcalc2 ()
 void simple_planet::edgefit (int k)
 {
     float a, b, h1, h2;
-    float kf = 2.0f;
+    
     for (int i=0 ; i<W ; ++i)
     {
         for (int ki=0 ; ki<k ;++ki)
         {
-            a = 1.0f / kf;
+            a = 1.0f / (ki+2);
             b = 1.0f - a;
             h1 = map->height[ki*W       + i];
             h2 = map->height[(H-1-ki)*W + i];
             map->height[ki*W       + i] = a * h2 + b * h1;
             map->height[(H-1-ki)*W + i] = a * h1 + b * h2;
-            kf *= 2.0f;
         }
     }
     
@@ -1113,7 +1127,7 @@ void simple_planet::edgefit (int k)
         }
     }
     
-    color();
+    //color();
     updateGpu(false);
 }
 
