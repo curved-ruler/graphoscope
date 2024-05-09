@@ -49,7 +49,7 @@ class terrain_part
         void setpos (float _x, float _y, float _z);
         void readpart       (simple_planet* planet, int px, int py);
         void readpart_plates(cr::height_pal* pal, ter::terrain_data_square* map, int px, int py);
-        void create_contour (cr::height_pal* pal, ter::terrain_data_square* map, int px, int py);
+        void create_contour (ter::terrain_data_square* map, int px, int py);
         void save_contour   (const std::string& dir, const std::string& name_base);
 };
 
@@ -110,6 +110,7 @@ class simple_planet
         void generate_ds   (bool slice, bool dsmap);
         void generate_warp (bool slice);
         void generate_delaunay (bool slice);
+        void gen_noise ();
         void crack ();
         void erosion_step   ();
         void erosion_2_step ();

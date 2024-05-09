@@ -373,7 +373,9 @@ void grid_scene::keyaction(int key, int action, int mods)
             break;
             */
         case keys::BUT_6 :
-            planet->generate_delaunay(false);
+            //planet->generate_delaunay(false);
+            planet->gen_noise();
+            planet->stat();
             break;
             
         case keys::BUT_7 :
