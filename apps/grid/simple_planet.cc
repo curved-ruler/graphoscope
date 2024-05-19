@@ -57,7 +57,8 @@ void terrain_part::init_grid()
 {
     unsigned int t  = 2*size*size;
     unsigned int l  = 2*size*size;
-    gridgeom = new cr::mesh_ux(t, l, 0);
+    unsigned int p  = size*size;
+    gridgeom = new cr::mesh_ux(t, l, p);
     
     
     unsigned int t2  = 0;
@@ -87,6 +88,7 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
     
     int ti = 0, ti2 = 0;
     int li = 0, li2 = 0;
+    int pi = 0;
     cr::vec3 v0, v1, v2, v3, norm, zi;
     cr::material col;
     
@@ -146,6 +148,10 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
             gridgeom->set_lin(li, v0, v1, col);
             gridgeom->set_lin(li+1, v0, v2, col);
             li += 2;
+            
+            gridgeom->set_pnt(pi,   (v0+v1+v2)/3.0f, col);
+            //gridgeom->set_pnt(pi+1, (v1+v2+v3)/3.0f, col);
+            pi += 1;
         }
     }
     
@@ -641,11 +647,20 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     
     pal2 = new cr::height_pal(*MAT5, 4);
     
-    noisegen = new ter::noise();
+    noisegen = new ter::noise_val();
     noisegen->xscale = 15.0f;
     noisegen->yscale = 15.0f;
     
+    noiseg = new ter::noise_grad();
+    noiseg->xscale = 15.0f;
+    noiseg->yscale = 15.0f;
+    
+    noises = new ter::noise_s();
+    noises->xscale = 15.0f;
+    noises->yscale = 15.0f;
+    
     delnoise_gen = nullptr;
+    init_delnoise();
     
     parts = new terrain_part*[pw*ph];
     for (int j=0 ; j<ph ; ++j)
@@ -668,7 +683,9 @@ simple_planet::~simple_planet()
     delete fd;
     
     delete noisegen;
-    if (delnoise_gen) delete delnoise_gen;
+    delete noiseg;
+    delete noises;
+    delete delnoise_gen;
     
     delete pal;
     delete pal2;
@@ -1061,13 +1078,92 @@ void simple_planet::gen_noise ()
 {
     contoured = false;
     
-    if (!delnoise_gen) init_delnoise();
+    for (int x=0 ; x<W ; ++x)
+    {
+        for (int y=0 ; y<H ; ++y)
+        {
+            map->height[y*W + x] = 3.0f * noiseg->base(float(x), float(y)).x;
+        }
+    }
+    edgefit(5);
+    color();
+    updateGpu(false);
+}
+
+void simple_planet::fbm (int on, float g)
+{
+    for (int x=0 ; x<W ; ++x)
+    {
+        for (int y=0 ; y<H ; ++y)
+        {
+            map->height[y*W + x] = 40.0f * noiseg->fbm(float(x)/128.0f, float(y)/128.0f, on, g);
+        }
+    }
+    edgefit(5);
+    color();
+    updateGpu(false);
+}
+
+void simple_planet::domain_warp (int on, float g)
+{
+    for (int x=0 ; x<W ; ++x)
+    {
+        for (int y=0 ; y<H ; ++y)
+        {
+            map->height[y*W + x] = 40.0f * noiseg->domain_warp(float(x)/128.0f, float(y)/128.0f, on, g);
+        }
+    }
+    edgefit(5);
+    color();
+    updateGpu(false);
+}
+
+void simple_planet::s_noise ()
+{
+    contoured = false;
     
     for (int x=0 ; x<W ; ++x)
     {
         for (int y=0 ; y<H ; ++y)
         {
-            map->height[y*W + x] = 3.0f * ter::noised( cr::vec2(float(x)/10.0f, float(y/10.0f)) ).x;
+            map->height[y*W + x] = 3.0f * noises->noise( cr::vec2(float(x)/128.0f,
+                                                                  float(y)/128.0f) );
+        }
+    }
+    edgefit(5);
+    color();
+    updateGpu(false);
+}
+
+void simple_planet::s_fbm (int on, float g)
+{
+    contoured = false;
+    
+    for (int x=0 ; x<W ; ++x)
+    {
+        for (int y=0 ; y<H ; ++y)
+        {
+            map->height[y*W + x] = 10.0f * noises->fbm( cr::vec2(float(x)/64.0f - 64.0f,
+                                                                 float(y)/64.0f - 64.0f),
+                                                        on, g );
+        }
+    }
+    edgefit(5);
+    color();
+    updateGpu(false);
+}
+
+void simple_planet::s_domain_warp (int on, float g)
+{
+    contoured = false;
+    
+    for (int x=0 ; x<W ; ++x)
+    {
+        for (int y=0 ; y<H ; ++y)
+        {
+            map->height[y*W + x] = 10.0f * noises->domain_warp( cr::vec2(float(x)/128.0f - 128.0f,
+                                                                         float(y)/128.0f - 128.0f),
+                                                                on, g );
         }
     }
     edgefit(5);

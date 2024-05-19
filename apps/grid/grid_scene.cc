@@ -368,17 +368,28 @@ void grid_scene::keyaction(int key, int action, int mods)
         case keys::BUT_4 :
             planet->ridge();
             break;
-            /*
+            
         case keys::BUT_5 :
+            planet->generate_warp(false);
+            planet->stat();
             break;
-            */
+            
         case keys::BUT_6 :
             //planet->generate_delaunay(false);
-            planet->gen_noise();
+            planet->domain_warp(2, 0.7f);
+            //planet->gen_noise();
+            //planet->fbm(10, 0.7f);
             planet->stat();
             break;
             
         case keys::BUT_7 :
+            //planet->s_noise();
+            planet->s_fbm(3, 0.7f);
+            //planet->s_domain_warp(2, 0.5f);
+            planet->stat();
+            break;
+            
+        case keys::BUT_8 :
             planet->create_contour();
             break;
         

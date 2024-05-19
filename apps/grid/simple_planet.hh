@@ -7,7 +7,6 @@
 #include "genmod/noise.hh"
 #include "genmod/diamond_square.hh"
 #include "genmod/erosion.hh"
-#include "genmod/warp.hh"
 #include "genmod/del_noise.hh"
 #include "genmod/kernel.hh"
 #include "genmod/game_of_life.hh"
@@ -71,8 +70,10 @@ class simple_planet
         cr::height_pal* pal2;
         //cr::vec3* mapcol;
         
-        ter::noise*     noisegen;
-        ter::del_noise* delnoise_gen;
+        ter::noise_val*  noisegen;
+        ter::noise_grad* noiseg;
+        ter::noise_s*    noises;
+        ter::del_noise*  delnoise_gen;
         void init_delnoise();
         
         std::string base_dir;
@@ -111,6 +112,12 @@ class simple_planet
         void generate_warp (bool slice);
         void generate_delaunay (bool slice);
         void gen_noise ();
+        void fbm (int on, float hh);
+        void domain_warp (int on, float hh);
+        void s_noise ();
+        void s_fbm (int on, float hh);
+        void s_domain_warp (int on, float hh);
+        
         void crack ();
         void erosion_step   ();
         void erosion_2_step ();
