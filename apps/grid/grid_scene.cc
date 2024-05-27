@@ -383,8 +383,8 @@ void grid_scene::keyaction(int key, int action, int mods)
             break;
             
         case keys::BUT_7 :
-            //planet->s_noise();
-            planet->s_fbm(3, 0.7f);
+            planet->s_noise();
+            //planet->s_fbm(4, 0.7f);
             //planet->s_domain_warp(2, 0.5f);
             planet->stat();
             break;

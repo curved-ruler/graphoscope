@@ -1126,8 +1126,8 @@ void simple_planet::s_noise ()
     {
         for (int y=0 ; y<H ; ++y)
         {
-            map->height[y*W + x] = 3.0f * noises->noise( cr::vec2(float(x)/128.0f,
-                                                                  float(y)/128.0f) );
+            map->height[y*W + x] = 3.0f * noises->noise( cr::vec2(float(x)/128.0f - 192.0f,
+                                                                  float(y)/128.0f - 192.0f) );
         }
     }
     edgefit(5);
@@ -1143,8 +1143,8 @@ void simple_planet::s_fbm (int on, float g)
     {
         for (int y=0 ; y<H ; ++y)
         {
-            map->height[y*W + x] = 10.0f * noises->fbm( cr::vec2(float(x)/64.0f - 64.0f,
-                                                                 float(y)/64.0f - 64.0f),
+            map->height[y*W + x] = 10.0f * noises->fbm( cr::vec2(float(x)/128.0f - 192.0f,
+                                                                 float(y)/128.0f - 192.0f),
                                                         on, g );
         }
     }
@@ -1161,8 +1161,8 @@ void simple_planet::s_domain_warp (int on, float g)
     {
         for (int y=0 ; y<H ; ++y)
         {
-            map->height[y*W + x] = 10.0f * noises->domain_warp( cr::vec2(float(x)/128.0f - 128.0f,
-                                                                         float(y)/128.0f - 128.0f),
+            map->height[y*W + x] = 10.0f * noises->domain_warp( cr::vec2(float(x)/128.0f - 0.0f,
+                                                                         float(y)/128.0f - 0.0f),
                                                                 on, g );
         }
     }

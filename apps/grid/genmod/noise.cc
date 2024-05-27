@@ -12,7 +12,7 @@ noise_s::~noise_s () {}
 
 float noise_s::noise (cr::vec2 x)
 {
-    float a = std::tan(x.x) * std::tan(x.y);
+    float a = std::cos(x.x) + std::cos(x.y);
     if (a > 5.0f)  a = 5.0f;
     if (a < -5.0f) a = -5.0f;
     return a;
