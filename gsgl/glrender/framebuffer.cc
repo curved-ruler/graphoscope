@@ -52,7 +52,13 @@ framebuffer::framebuffer(cr::render_mode* rm, GLuint _tex)
     cr::precompiler pc;
     std::string vs = pc.process(settings->shader_dir, "offscreen.glsl.v");
     std::string fs = pc.process(settings->shader_dir, "postproc_no.glsl.f");
-    prog = new renderprog(vs, fs);
+    prog[0] = new renderprog(vs, fs);
+    
+    fs = pc.process(settings->shader_dir, "postproc_inv.glsl.f");
+    prog[1] = new renderprog(vs, fs);
+    
+    fs = pc.process(settings->shader_dir, "postproc_enb.glsl.f");
+    prog[2] = new renderprog(vs, fs);
 }
 framebuffer::~framebuffer()
 {
@@ -60,7 +66,9 @@ framebuffer::~framebuffer()
     glDeleteRenderbuffers(1, &rbo);
     //glDeleteVertexArrays(1, &quadVAO);
     glDeleteBuffers(1, &quadVBO);
-    delete prog;
+    delete prog[0];
+    delete prog[1];
+    delete prog[2];
 }
 
 void framebuffer::bind ()
@@ -85,7 +93,7 @@ void framebuffer::render()
 {
     unbind();
     
-    glUseProgram(prog->get_progid());
+    glUseProgram(prog[settings->proctype]->get_progid());
     glViewport(settings->viewport[0], settings->viewport[1], settings->viewport[2], settings->viewport[3]);
     
     glDisable(GL_DEPTH_TEST);

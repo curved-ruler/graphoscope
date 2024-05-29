@@ -20,6 +20,9 @@ render_mode::render_mode()
     col[2] = 0.9f;
     col[3] = 0.3f;
     
+    camtype    = 1;
+    objtype    = 1;
+    proctype   = 0;
     colourmode = 0;
     
     has_normal = false;

@@ -54,6 +54,7 @@ grid_scene::grid_scene(cr::scripter& _conf) : scene(_conf)
     rmode.camtype = 1;
     rmode.objtype = 1; objrender = 1;
     rmode.colourmode = 2;
+    rmode.proctype = 0;
     sflow = false;
             
     rrr_n = new gsgl::r_nshaded();
@@ -267,6 +268,7 @@ void grid_scene::keyaction(int key, int action, int mods)
             break;
                 
         case keys::P :
+            ++(rmode.proctype); if (rmode.proctype >= cr::render_mode::pop_n) rmode.proctype=0;
             break;
             
         case keys::K :

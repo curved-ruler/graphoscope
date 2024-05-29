@@ -37,7 +37,8 @@ enum col_mode
 enum pproc_mode 
 {
     PP_NOTHING,
-    PP_INVERSE
+    PP_INVERSE,
+    PP_ENBOSS
 };
 
 struct rrr_buffers
@@ -65,7 +66,7 @@ public:
     uint8 objtype;
     static const uint8 obj_n = 6;
     uint8 proctype;
-    static const uint8 pop_n = 2;
+    static const uint8 pop_n = 3;
     
     bool has_normal;
     

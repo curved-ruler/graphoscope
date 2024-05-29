@@ -17,7 +17,8 @@ class framebuffer
         GLuint rbo;
         GLuint quadVAO, quadVBO;
         float quadVertices[24];
-        renderprog* prog;
+        
+        renderprog* prog[3];
         
     public:
         framebuffer(cr::render_mode* rm, GLuint _texture);
