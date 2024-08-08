@@ -25,8 +25,13 @@ ORBITS_OUTPUT="$BASE_PATH/dist/bin-l/orbits"
 CYCLOID_OUTPUT="$BASE_PATH/dist/bin-l/cycloid"
 SYNTH_OUTPUT="$BASE_PATH/dist/bin-l/synth"
 PLT_OUTPUT="$BASE_PATH/dist/bin-l/plane_transform"
+DEL_OUTPUT="$BASE_PATH/dist/bin-l/delaunay_test"
 
-COMPILER_OPTIONS="-std=c++11 -Wall -Wextra -D REENTRANT -D PLATFORM_LINUX"
+MDOELT_OUTPUT="$BASE_PATH/dist/bin-l/model-tester"
+
+
+
+COMPILER_OPTIONS="-std=c++17 -Wall -Wextra -D REENTRANT -D PLATFORM_LINUX"
 #COMPILER_OPTIONS="-std=c++11 -Wall -Wextra -D REENTRANT -D PLATFORM_LINUX -O3"
 #DEBUG_OPTIONS="-fsanitize=address -fsanitize=pointer-compare -fsanitize=leak -fsanitize=undefined"
 DEBUG_OPTIONS=""
@@ -40,8 +45,8 @@ LINKER_OPTIONS=""
 #GLEW_INC1="-I/usr/include/libdrm"
 #GLEW_LIB1="-L/usr/lib64 -lGLEW -lGLU -lm -lGL -lm -lpthread -ldl -ldrm -lXdamage -lXfixes -lX11-xcb -lxcb-glx -lxcb-dri2 -lXxf86vm -lXext -lX11 -lpthread -lxcb -lXau -lXdmcp"
 
-GLAD_INC="$THIRD_PATH/glad/include"
-GLAD_LIB="$THIRD_PATH/glad/src/glad.c"
+GLAD_INC="$THIRD_PATH/glad-45/include"
+GLAD_LIB="$THIRD_PATH/glad-45/src/glad.c"
 
 SAUDIO_INC="$THIRD_PATH/sokol-master-2021"
 
