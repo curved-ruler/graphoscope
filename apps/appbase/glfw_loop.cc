@@ -77,12 +77,11 @@ glfw_loop::glfw_loop (cr::scripter& config_file)
     
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-    
+    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+    //glfwWindowHint(GLFW_WAYLAND_APP_ID, "/stuff/S/graphoscope/graphoscope2/dist/bin-l/cr05_sm.png");
     //glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
-    glfwSwapInterval(1);
 
 
     //window = glfwCreateWindow(WIDTH, HEIGHT, "NewWorld", glfwGetPrimaryMonitor(), nullptr);
@@ -106,7 +105,9 @@ glfw_loop::glfw_loop (cr::scripter& config_file)
         std::cout << "Failed to initialize GLAD" << std::endl;
     }
     
-    glfwSwapInterval(0);
+    glfwSwapInterval(1);
+    
+    if (!glfwRawMouseMotionSupported()) { std::cout << "No raw mouse motion." << std::endl; }
     
     // GLFW bug
     //glGetError();
@@ -128,12 +129,13 @@ void glfw_loop::save_screen (bool gif)
 {
     glReadPixels(0, 0, W, H, GL_RGB, GL_UNSIGNED_BYTE, screen_s);
     
-    unsigned int row = W * scr_channel_comps;
+    unsigned int row  = W * scr_channel_comps;
+    unsigned int rowp = (row%4 != 0) ? row + 4-(row%4) : row;
     unsigned char* screen_s_tmp = new unsigned char[H * row];
     for (unsigned int i=0 ; i<H ; ++i)
     {
         std::memcpy(&screen_s_tmp[i * row],
-                    &screen_s[(H-1-i) * row],
+                    &screen_s[(H-1-i) * rowp],
                     row);
     }
     
@@ -256,6 +258,7 @@ void glfw_loop::toggleFullscreen ()
         H = mode->height;
         glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0, 0, W, H, mode->refreshRate);
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+        //glfwSetInputMode(window, GLFW_RAW_MOUSE_MOTION, GLFW_TRUE);
         fullscreen = true;
     }
     
@@ -264,7 +267,9 @@ void glfw_loop::toggleFullscreen ()
     std::cout << "New screen size: [" << W << ", " << H << "]" << std::endl;
     data->resize_screen(W, H);
     delete[] screen_s;
-    screen_s = new unsigned char[W * H * scr_channel_comps];
+    unsigned int row  = W * scr_channel_comps;
+    if (row%4 != 0) row = row + 4-(row%4);
+    screen_s = new unsigned char[H*row];
 }
 
 int glfw_loop::find_key (int glfw_key)
@@ -411,8 +416,8 @@ void glfw_loop::cursorpos (double xpos, double ypos)
         if (eat_cursor)
         {
             glfwSetCursorPos(window, W / 2.0, H / 2.0);
-            mxo = W / 2.0;
-            myo = H / 2.0;
+            //mxo = W / 2.0;
+            //myo = H / 2.0;
         }
     }
 }
@@ -448,6 +453,10 @@ void glfw_loop::mousebutton (int button, int action, int mods)
     data->mousebutton(scene_key, scene_action, mods);
 }
 
+void glfw_loop::wnd_size (int x, int y)
+{
+    data->resize_screen(x, y);
+}
 
 
 

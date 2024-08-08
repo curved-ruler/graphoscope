@@ -10,8 +10,6 @@ class scene
     protected:
         cr::scripter& sysconf;
         
-        int used_render;
-        int used_render_2;
         cr::render_mode rmode;
         
         gsgl::texture2* screen_tex;
@@ -19,6 +17,9 @@ class scene
         
         unsigned int used_cam;
         std::vector<cr::camera*> cameras;
+        int used_render;
+        int used_render_2;
+        std::vector<cr::renderer*> renderers;
         
         GLuint vao;
         

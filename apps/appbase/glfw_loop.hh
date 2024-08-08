@@ -73,6 +73,7 @@ class glfw_loop
         void scroll      (double xoffset, double yoffset);
         void cursorpos   (double xpos, double ypos);
         void mousebutton (int button, int action, int mods);
+        void wnd_size    (int x, int y);
         
         void one_loop ();
         int  loop ();

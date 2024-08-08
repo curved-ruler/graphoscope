@@ -40,9 +40,14 @@ scene::~scene()
     for (unsigned int ci = 0 ; ci < cameras.size() ; ++ci)
     {
         delete cameras[ci];
-        cameras[ci] = 0;
+        //cameras[ci] = 0;
     }
     cameras.clear();
+    for (unsigned int ri=0 ; ri < renderers.size() ; ++ri)
+    {
+        delete renderers[ri];
+    }
+    renderers.clear();
     
     delete framebuf;
     delete screen_tex;
