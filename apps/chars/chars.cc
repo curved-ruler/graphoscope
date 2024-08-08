@@ -20,6 +20,7 @@ void char_callback        (GLFWwindow* /*wnd*/, unsigned int codepoint)         
 void scroll_callback      (GLFWwindow* /*wnd*/, double xoffset, double yoffset)              { global_loop->scroll(xoffset, yoffset); }
 void cursorpos_callback   (GLFWwindow* /*wnd*/, double xpos, double ypos)                    { global_loop->cursorpos(xpos, ypos); }
 void mousebutton_callback (GLFWwindow* /*wnd*/, int button, int action, int mods)            { global_loop->mousebutton(button, action, mods); }
+//void window_size_callback (GLFWwindow* /*wnd*/, int width, int height)                       {  }
 
 
 
@@ -111,6 +112,15 @@ class c_scene : public scene
         virtual void step(float /*dt*/) {}
         
         virtual void save() {}
+        
+        virtual void resize ()
+        {
+            ta->setdims(scale, 0.0f /*xsep*/, 0.0f /*ysep*/, rmode.screen_w, rmode.screen_h, false /*wrap*/);
+            ta->render();
+            gsgl::TXTtoGPU(ta->renderdata, rdata);
+            glBindBuffer(GL_ARRAY_BUFFER, cbuf);
+            glBufferData(GL_ARRAY_BUFFER, ta->colors.size() * sizeof(uint32), ta->colors.data(), GL_STATIC_DRAW);
+        }
         
         virtual void init_render() { /*renderers[used_render]->initRender(screen_width, screen_height);*/ }
         virtual void pre_render() { /*renderers[used_render]->preRender();*/ }
@@ -225,7 +235,6 @@ int main ()
     glfwSetScrollCallback     (global_loop->window, scroll_callback);
     glfwSetCursorPosCallback  (global_loop->window, cursorpos_callback);
     glfwSetMouseButtonCallback(global_loop->window, mousebutton_callback);
-    
     
     
     int ret = global_loop->loop();
