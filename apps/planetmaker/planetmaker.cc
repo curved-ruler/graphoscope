@@ -1,5 +1,6 @@
 
 #include <iostream>
+#include <string>
 
 #include "planetmaker_base.hh"
 #include <apps/appbase/glfw_loop.hh>
@@ -14,7 +15,8 @@ void mousebutton_callback (GLFWwindow* /*wnd*/, int button, int action, int mods
 
 int main ()
 {
-    cr::scripter ttconf("planetmaker.conf");
+    std::string confstr = cr::read_file("planetmaker.conf");
+    cr::scripter ttconf(confstr);
     
     global_loop = new glfw_loop(ttconf);
     scene* mts = new planetmaker_base(ttconf);
@@ -28,7 +30,8 @@ int main ()
     int ret = global_loop->loop();
     global_loop->done();
     
-    delete global_loop;
     delete mts;
+    delete global_loop;
+    
     return ret;
 }

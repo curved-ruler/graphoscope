@@ -32,7 +32,7 @@ planetmaker_base::planetmaker_base(cr::scripter& _conf) : scene(_conf)
     cam0->pos   = cr::vec3(-500.0f,  0.0f, 0.0f);
     cam0->up    = cr::vec3( 0.0f,  0.0f, 1.0f);
     cam0->look  = cr::vec3( 1.0f,  0.0f, 0.0f);
-    cam0->setfov(25.0f);
+    cam0->setfov(25.0f * cr::dtor);
     cam0->persp_to_ortho();
     cam0->aspect = 1.0f;
     
@@ -56,42 +56,17 @@ planetmaker_base::planetmaker_base(cr::scripter& _conf) : scene(_conf)
     */
     
     
-    cr::renderer* renderer0 = new gsgl::r_matrix_point();
-    cr::renderer* renderer1 = new gsgl::r_matrix_line();
-    cr::renderer* renderer2 = new gsgl::r_matrix_flat();
-    cr::renderer* renderer3 = new gsgl::r_fish1_point();
-    cr::renderer* renderer4 = new gsgl::r_fish1_line();
-    cr::renderer* renderer5 = new gsgl::r_fish1_flat();
-    cr::renderer* renderer6 = new gsgl::r_pp4_point();
-    cr::renderer* renderer7 = new gsgl::r_pp4_line();
-    cr::renderer* renderer8 = new gsgl::r_pp4_flat();
-    renderer0->setup(&rmode);
-    renderer1->setup(&rmode);
-    renderer2->setup(&rmode);
-    renderer3->setup(&rmode);
-    renderer4->setup(&rmode);
-    renderer5->setup(&rmode);
-    renderer6->setup(&rmode);
-    renderer7->setup(&rmode);
-    renderer8->setup(&rmode);
-    renderers.push_back(renderer0);
-    renderers.push_back(renderer1);
-    renderers.push_back(renderer2);
-    renderers.push_back(renderer3);
-    renderers.push_back(renderer4);
-    renderers.push_back(renderer5);
-    renderers.push_back(renderer6);
-    renderers.push_back(renderer7);
-    renderers.push_back(renderer8);
+    rmode.camtype = 1;
+    rmode.objtype = 1; objrender = 1;
+    rmode.colourmode = 2;
+    rmode.proctype = 0;
     
-    
-    mtr.scale = 1.0f;
-    mtr.pos  = {0.0f, 0.0f,  0.0f};
-    mtr.look = {1.0f, 0.0f,  0.0f};
-    mtr.up   = {0.0f, 0.0f,  1.0f};
-    axis     = 0.0;
-    rotation = 0.0;
-    rotdir   = true;
+    cr::renderer* rrr_n = new gsgl::r_nshaded();
+    cr::renderer* rrr_v = new gsgl::r_vshaded();
+    rrr_n->setup(&rmode);
+    rrr_v->setup(&rmode);
+    renderers.push_back(rrr_n);
+    renderers.push_back(rrr_v);
     
     /*
     cr::SimpleMeshBuilder mb;
@@ -134,13 +109,14 @@ planetmaker_base::planetmaker_base(cr::scripter& _conf) : scene(_conf)
     sysconf.getvalue("data.simn", simn, 1);
     sysconf.getvalue("data.simr", simr, 10.0f);
     
-    planet = new uv_sphere_planet(sysconf, mtr, radius, cr::powi(2, lod), K);
-    
-    nextCamMode();
-    nextObjMode();
-    nextObjMode();
-    nextColMode();
-    nextColMode();
+    planet = new uv_sphere_planet(sysconf, radius, cr::powi(2, lod), K);
+    planet->scale = 1.0f;
+    planet->pos  = {0.0f, 0.0f,  0.0f};
+    planet->look = {1.0f, 0.0f,  0.0f};
+    planet->up   = {0.0f, 0.0f,  1.0f};
+    axis     = 0.0;
+    rotation = 0.0;
+    rotdir   = true;
 }
 
 planetmaker_base::~planetmaker_base()
@@ -163,11 +139,11 @@ void planetmaker_base::mousescroll (float /*x*/, float y)
     {
         if (y > 0.0f)
         {
-            mtr.scale *= 1.25f;
+            planet->scale *= 1.25f;
         }
         else
         {
-            mtr.scale *= 0.8f;
+            planet->scale *= 0.8f;
         }
     }
     else
@@ -229,44 +205,38 @@ void planetmaker_base::render()
 {
     framebuf->use();
     
+    rmode.objtype = (objrender < 3) ? objrender : objrender-3;
+    used_render   = (rmode.objtype < 2) ? 0 : 1;
+    used_render_2 = (objrender < 3) ? -1 : 1;
+    
     float scale = 0.2f * cameras[used_cam]->far / planet->radius;
     
-    mtr2.identity();
-    mtr2 *= cr::scale_mat(scale);
-    mtr2 *= cr::roty_mat(axis);
-    mtr2 *= cr::rotz_mat(rotation);
-    
-    //cameras[0]->aspect = (float)screen_width / (float)screen_height;
-    
-    renderers[used_render]->pre_render();
-    
-    /*
-    renderers[1]->initRender(screen_width / rmode.pixel_size, screen_height / rmode.pixel_size);
-    renderers[1]->render(*(cameras[used_cam]), mtr2 * mtr.modelTr(), worldCoordGpu);
-    */
+    mtr.identity();
+    mtr *= cr::scale_mat(scale);
+    mtr *= cr::roty_mat(axis * cr::dtor);
+    mtr *= cr::rotz_mat(rotation * cr::dtor);
     
     renderers[used_render]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
-    planet->draw(*(cameras[used_cam]), mtr2 * mtr.model_mat(), renderers[used_render]);
-    //renderers[used_render]->render(*(cameras[used_cam]), mtr2 * mtr.modelTr(), gpuModel);
+    renderers[used_render]->pre_render();
+    planet->draw(*(cameras[used_cam]), mtr * cr::scale_mat(planet->scale), renderers[used_render]);
     
     if (used_render_2 >= 0)
     {
+        rmode.objtype = 2;
+        //rmode.colourmode = x;
         //rmode.pp6size = 0.9f;
         renderers[used_render_2]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(1.0f, 1.0f);
-        
-        //renderers[used_render_2]->render(*(cameras[used_cam]), mtr2 * mtr.modelTr(), gpuModel);
-        planet->draw(*(cameras[used_cam]), mtr2 * mtr.model_mat(), renderers[used_render_2]);
-        
+        planet->draw(*(cameras[used_cam]), mtr * cr::scale_mat(planet->scale), renderers[used_render_2]);
         glDisable(GL_POLYGON_OFFSET_FILL);
     }
 
 #ifdef DEBUG_CRACK
      renderers[1]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
-     renderers[1]->render(*(cameras[used_cam]), mtr2 * mtr.model_mat(), planet->debugBuff);
+     renderers[1]->render(*(cameras[used_cam]), mtr * cr::scale_mat(planet->scale), planet->debugBuff);
 #endif
-
+    
     framebuf->render();
 }
 
@@ -277,19 +247,19 @@ void planetmaker_base::keyaction(int key, int action, int /*mods*/) {
     switch (key)
     {
         case keys::I :
-            nextCamMode();
+            ++(rmode.camtype); if (rmode.camtype >= cr::render_mode::cam_n) rmode.camtype=0;
             break;
-            
+                
         case keys::O :
-            nextObjMode();
+            ++(objrender); if (objrender >= cr::render_mode::obj_n) objrender=0;
             break;
-            
+                
         case keys::P :
-            // prostprocmode
+            ++(rmode.proctype); if (rmode.proctype >= cr::render_mode::pop_n) rmode.proctype=0;
             break;
             
         case keys::K :
-            nextColMode();
+            ++(rmode.colourmode); if (rmode.colourmode >= cr::render_mode::col_n) rmode.colourmode=0;
             break;
         /*
         case keys::A :

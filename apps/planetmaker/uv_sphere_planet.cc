@@ -6,9 +6,8 @@
 #include <cstring>
 
 
-uv_sphere_planet::uv_sphere_planet (cr::scripter& _conf, const vec_placed& _place, float _r, int _part_size, int _part_k)
-  : vec_placed(_place)
-  , N(_part_size)
+uv_sphere_planet::uv_sphere_planet (cr::scripter& _conf, float _r, int _part_size, int _part_k)
+  : N(_part_size)
   , K(_part_k)
   , radius(_r)
   , conf(_conf)
@@ -233,7 +232,8 @@ void uv_sphere_planet::create_contour ()
     }
     
     gsgl::clearGPU(planetGpu);
-    gsgl::MUXtoGPU(planetMesh, contourMesh, planetGpu);
+    //gsgl::MUXtoGPU(planetMesh, contourMesh, planetGpu);
+    gsgl::MUXtoGPU(planetMesh, planetGpu);
 }
 
 void uv_sphere_planet::crack (int k, float d)
@@ -423,10 +423,12 @@ void uv_sphere_planet::rnd_octaves ()
     create_mesh();
 }
 
+/*
 void uv_sphere_planet::draw (const cr::camera& cam, cr::renderer* rrr) const
 {
     rrr->render(cam, model_mat(), planetGpu);
 }
+*/
 void uv_sphere_planet::draw (const cr::camera& cam, cr::mat4 tr, cr::renderer* rrr) const
 {
     rrr->render(cam, tr, planetGpu);

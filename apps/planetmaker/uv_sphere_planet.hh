@@ -10,9 +10,14 @@
 
 struct uv_sphere { float fi; float th; };
 
-class uv_sphere_planet : public cr::vec_placed
+class uv_sphere_planet
 {
     public:
+        cr::vec3 pos;
+        cr::vec3 look;
+        cr::vec3 up;
+        float scale;
+        
         int N; // must be power of 2
         int K;
         float th0, dth, dfi;
@@ -34,7 +39,7 @@ class uv_sphere_planet : public cr::vec_placed
         
     public:
         //uv_sphere_planet (const std::string& mapfile);
-         uv_sphere_planet (cr::scripter& _conf, const vec_placed& _place, float _r, int _part_size, int _part_k);
+         uv_sphere_planet (cr::scripter& _conf, float _r, int _part_size, int _part_k);
         ~uv_sphere_planet ();
         
         void create_mesh();
@@ -48,7 +53,7 @@ class uv_sphere_planet : public cr::vec_placed
         //bool newpos (cr::vec3 in, cr::vec3& newp);
         
         //void updateTerrainParts (float x, float y);
-        void draw (const cr::camera& cam, cr::renderer* rrr) const;
+        //void draw (const cr::camera& cam, cr::renderer* rrr) const;
         void draw (const cr::camera& cam, cr::mat4 tr, cr::renderer* rrr) const;
 
 }; // class uv2_sphere_planet

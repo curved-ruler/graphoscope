@@ -13,10 +13,13 @@ class planetmaker_base : public scene
         std::string target_dir;
         std::string planet_out;
         
+        gsgl::r_nshaded* rrr_n;
+        gsgl::r_vshaded* rrr_v;
+        int objrender;
+        
         ////planet
         uv_sphere_planet* planet;
-        cr::vec_placed mtr;
-        cr::mat4 mtr2;
+        cr::mat4 mtr;
         float axis;
         float rotation;
         bool rotdir;
