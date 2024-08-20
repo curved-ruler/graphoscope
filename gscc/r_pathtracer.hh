@@ -35,7 +35,7 @@ class r_pathtracer : public cr::renderer
         virtual void pre_render  () override;
         virtual void render      (const cr::camera& cam, const cr::mat4& modeltr, const cr::rrr_buffers& bufs) override;
         virtual void render      (const cr::camera& cam, const cr::mat4& modeltr, const cr::mesh_ux& mesh) override;
-        virtual void render      (const cr::camera& cam, const cr::mat4& modeltr, const cr::mesh_ix& mesh) override;
+        //virtual void render      (const cr::camera& cam, const cr::mat4& modeltr, const cr::mesh_ix& mesh) override;
 };
 
 }

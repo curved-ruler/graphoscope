@@ -141,6 +141,6 @@ void r_pathtracer::render(const cr::camera& cam, const cr::mat4& modeltr, const 
     }
 }
 
-void r_pathtracer::render (const cr::camera& /*cam*/, const cr::mat4& /*modeltr*/, const cr::mesh_ix& /*mesh*/) {}
+//void r_pathtracer::render (const cr::camera& /*cam*/, const cr::mat4& /*modeltr*/, const cr::mesh_ix& /*mesh*/) {}
 
 }
