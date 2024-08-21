@@ -93,7 +93,8 @@ public:
     float pp4size;
     float pp6size;
     
-    int path_n;
+    int thread_n;
+    int frames;  // # of frames for full cpu render
     
 public:
     render_mode();

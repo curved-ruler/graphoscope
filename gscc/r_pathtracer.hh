@@ -22,9 +22,8 @@ class r_pathtracer : public cr::renderer
         std::vector<unsigned int> perm;
         unsigned int ipixel;
         
-        //cr::idice* dice;
-        //int* actpixels;
-        //int path_n;
+        int thread_k;
+        int path_n;
         
     public:
         r_pathtracer();
@@ -33,9 +32,9 @@ class r_pathtracer : public cr::renderer
         virtual void setup       (cr::render_mode* settings) override;
         virtual void init_render (unsigned int w, unsigned int h) override;
         virtual void pre_render  () override;
-        virtual void render      (const cr::camera& cam, const cr::mat4& modeltr, const cr::rrr_buffers& bufs) override;
+        
+        void render_pixel (int pix, const cr::camera& cam, const cr::mat4& modeltr, const cr::mesh_ux& mesh);
         virtual void render      (const cr::camera& cam, const cr::mat4& modeltr, const cr::mesh_ux& mesh) override;
-        //virtual void render      (const cr::camera& cam, const cr::mat4& modeltr, const cr::mesh_ix& mesh) override;
 };
 
 }

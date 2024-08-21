@@ -33,7 +33,6 @@ class simple_scene : public scene
         cr::spectator_cam* spec_cam;
         
         std::string renderengine;
-        int rei;
         gscc::r_pathtracer* renderer_pt;
         int objrender;
 
@@ -79,8 +78,9 @@ class simple_scene : public scene
             spec_cam = new cr::spectator_cam(cameras[0]);
             
             conf.getvalue("render.engine", renderengine, "gsgl");
-            conf.getvalue("render.path_n", rmode.path_n, 100);
-            rei = (renderengine =="gsgl") ? 1 :0;
+            conf.getvalue("render.frames", rmode.frames, 1);
+            conf.getvalue("render.thread_n", rmode.thread_n, 1);
+            //std::cout << "PATH_N: " << rmode.path_n << std::endl;
             renderer_pt = new gscc::r_pathtracer();
             renderer_pt->setup(&rmode);
             
@@ -127,7 +127,7 @@ class simple_scene : public scene
         {
             framebuf->use();
             
-            if (rei)
+            if (renderengine == "gsgl")
             {
                 renderers[used_render]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
                 renderers[used_render]->pre_render();

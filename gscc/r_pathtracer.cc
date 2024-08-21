@@ -1,8 +1,11 @@
 
 #include "r_pathtracer.hh"
 
+#include <vector>
+#include <thread>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 namespace gscc {
 
@@ -15,12 +18,14 @@ r_pathtracer::r_pathtracer()
     //actpixels = nullptr;
     max_depth = 1000000.0f;
     
+    ipixel = 0;
+    thread_k = 0;
+    path_n = 0;
+    
     rgen = new std::mt19937(238);
 }
 r_pathtracer::~r_pathtracer()
 {
-    //delete dice;
-    //delete[] actpixels;
     delete rgen;
     delete[] screen;
     delete[] depth;
@@ -48,6 +53,13 @@ void r_pathtracer::init_render(unsigned int w, unsigned int h)
         perm.resize(sw*sh);
         for (unsigned int i=0 ; i<sw*sh ; ++i) perm[i] = i;
         std::shuffle(perm.begin(), perm.end(), *rgen);
+        
+        path_n = (sw*sh)/settings->frames;
+        if ((sw*sh) % settings->frames != 0) path_n += 1;
+        
+        thread_k = path_n / settings->thread_n;
+        if (path_n % settings->thread_n != 0) thread_k += 1;
+        
         ipixel = 0;
     }
 }
@@ -73,20 +85,22 @@ void r_pathtracer::pre_render()
     */
 }
 
-void r_pathtracer::render(const cr::camera& /*cam*/, const cr::mat4& /*modeltr*/, const cr::rrr_buffers& /*bufs*/) {}
-
-void r_pathtracer::render(const cr::camera& cam, const cr::mat4& modeltr, const cr::mesh_ux& mesh)
+void r_pathtracer::render_pixel (int pix, const cr::camera& cam, const cr::mat4& modeltr, const cr::mesh_ux& mesh)
 {
-    for (int ri=0 ; ri<settings->path_n ; ++ri)
+    for (int i=0 ; i<thread_k ; ++i)
     {
-        if (ipixel >= sw*sh)
+        int j = ipixel*path_n + thread_k*pix + i;
+        if (j >= perm.size())
         {
-            std::shuffle(perm.begin(), perm.end(), *rgen);
-            ipixel = 0;
+            //std::stringstream ss("");
+            //ss << "OVR pix: " << pix << " thread_k: " << thread_k << " ipixel: " << ipixel << " i: " << i << "\n";
+            //std::cout << ss.str();
+            return;
         }
         
-        int x = perm[ipixel] % (int)sw;
-        int y = perm[ipixel] / (int)sw;
+        unsigned int x = perm[j] % sw;
+        unsigned int y = perm[j] / sw;
+        //if (x >= sw || y >= sh) continue;
         
         screen[(y*sw + x)*3]     = settings->back[0];
         screen[(y*sw + x)*3 + 1] = settings->back[1];
@@ -136,11 +150,23 @@ void r_pathtracer::render(const cr::camera& cam, const cr::mat4& modeltr, const 
             screen[(y*sw + x)*3 + 2] = mesh.triangles[trii*cr::mesh_ux::tsize+5]*0.7f + mesh.triangles[trii*cr::mesh_ux::tsize+5]*cr::dot(nplane,cr::vec3(1,1,1).normal())*0.3f;
             depth[(y*sw + x)] = t;
         }
-        
-        ++ipixel;
     }
 }
 
-//void r_pathtracer::render (const cr::camera& /*cam*/, const cr::mat4& /*modeltr*/, const cr::mesh_ix& /*mesh*/) {}
+void r_pathtracer::render (const cr::camera& cam, const cr::mat4& modeltr, const cr::mesh_ux& mesh)
+{
+    std::vector<std::thread> render_threads;
+    
+    for (int ri=0 ; ri<settings->thread_n ; ++ri)
+    {
+        render_threads.emplace_back(&r_pathtracer::render_pixel, this, ri, cam, modeltr, mesh);
+        //render_pixel(ri, cam, modeltr, mesh);
+    }
+    
+    ipixel += 1;
+    if (ipixel >= settings->frames) ipixel = 0;
+    
+    for (auto& t : render_threads)  t.join();
+}
 
 }

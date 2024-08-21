@@ -65,7 +65,8 @@ render_mode::render_mode()
     pointcoords[16] = 0.0f; pointcoords[17] = 0.0f;
     pointcoords[18] = 0.0f; pointcoords[19] = 0.0f;
     
-    path_n = 100;
+    frames   = 1;
+    thread_n = 1;
 }
 
 render_mode::~render_mode() {}

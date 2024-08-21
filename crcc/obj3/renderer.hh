@@ -2,6 +2,7 @@
 #pragma once
 
 #include "../math/mu.hh"
+#include "../obj3/mesh_ux.hh"
 #include "camera.hh"
 #include "render_mode.hh"
 
