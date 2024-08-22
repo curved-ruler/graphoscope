@@ -453,7 +453,8 @@ class synth_scene : public scene
 
 int main ()
 {
-    cr::scripter ttconf("synth.conf");
+    std::string conf = cr::read_file("synth.conf");
+    cr::scripter ttconf(conf);
     
     global_loop = new glfw_loop(ttconf);
     scene* s = new synth_scene(ttconf);

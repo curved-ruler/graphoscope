@@ -1,0 +1,9 @@
+ 
+apt install libasound2-dev
+
+to raw
+ffmpeg -formats | grep "PCM"
+ffmpeg -i piano_a.flac -f f32le piano_a.raw
+
+back
+ffmpeg -f f32le -i piano_a.raw p.flac
