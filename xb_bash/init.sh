@@ -1,7 +1,7 @@
 #!/bin/bash
 
-BASE_PATH="graphoscope"
-THIRD_PATH="third"
+BASE_PATH="/stuff/S/graphoscope/graphoscope2"
+THIRD_PATH="/stuff/S/graphoscope/third"
 
 if [ ! -d "tmp" ]; then
   mkdir tmp
@@ -20,6 +20,7 @@ NW_OUTPUT="$BASE_PATH/dist/bin-l/newworld"
 SMSP_OUTPUT="$BASE_PATH/dist/bin-l/smallspace"
 GRID_OUTPUT="$BASE_PATH/dist/bin-l/grid"
 CHARS_OUTPUT="$BASE_PATH/dist/bin-l/chars"
+CHAOSG_OUTPUT="$BASE_PATH/dist/bin-l/chaos_game"
 PLANETM_OUTPUT="$BASE_PATH/dist/bin-l/planetmaker"
 ORBITS_OUTPUT="$BASE_PATH/dist/bin-l/orbits"
 CYCLOID_OUTPUT="$BASE_PATH/dist/bin-l/cycloid"

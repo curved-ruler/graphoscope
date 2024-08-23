@@ -36,8 +36,41 @@ class r_matrix_p2 : public cr::renderer
         {
             settings = rm;
             
-            std::string vs = pc.process(settings->shader_dir, "matrix.glsl.v");
-            std::string fs = pc.process(settings->shader_dir, "simple.glsl.f");
+            std::string vs =  R"vertexshader(
+#version 430 core
+
+layout(location = 0) in vec3 position;
+layout(location = 1) in vec3 in_color;
+
+uniform vec3 base_color;
+uniform mat4 pvm;
+uniform int colm;
+
+out vec3 color;
+
+
+void main () {
+    gl_Position = pvm * vec4(position, 1.0);
+    
+    if (colm == 1) color = in_color;
+    else           color = base_color;
+}
+)vertexshader";
+            std::string fs = R"fragmentshader(
+
+#version 430 core
+
+// precision mediump float;
+in vec3 color;
+
+uniform float alpha;
+
+out vec4 out_color;
+
+void main() {
+    out_color = vec4(color, alpha);
+}
+)fragmentshader";
             
             vf = new renderprog(vs, fs);
             status = vf->get_state();
@@ -45,7 +78,6 @@ class r_matrix_p2 : public cr::renderer
         virtual void init_render (unsigned int w, unsigned int h) override
         {
             glUseProgram(vf->get_progid());
-            
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             glDisable(GL_CULL_FACE);
             
@@ -73,14 +105,13 @@ class r_matrix_p2 : public cr::renderer
             
             glBindBuffer(GL_ARRAY_BUFFER, bufs.pnt_buf);
             
+            glVertexAttribPointer(obj::POS_BUF_ID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(NULL));
+            glVertexAttribPointer(obj::COL_BUF_ID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
             glEnableVertexAttribArray(obj::POS_BUF_ID);
             glEnableVertexAttribArray(obj::COL_BUF_ID);
             
-            glVertexAttribPointer(obj::POS_BUF_ID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(NULL));
-            glVertexAttribPointer(obj::COL_BUF_ID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
-            
             cr::mat4 view = cam.view_mat();
-            cr::mat4 proj = (settings->shadertype & 0x01) ? cam.persp_mat() : cam.ortho_mat();
+            cr::mat4 proj = (settings->camtype == 0) ? cam.ortho_mat() : cam.persp_mat();
             cr::mat4 pvm  = proj * view * modeltr;
             bool succ = vf->set_uniform_m4("pvm", pvm);
             succ &= vf->set_uniform_int("colm", (int)((settings->colourmode & 2) >> 1));
@@ -90,12 +121,7 @@ class r_matrix_p2 : public cr::renderer
             
             //std::cout << mesh->linn << std::endl;
             glDrawArrays(GL_POINTS, 0, bufs.pntn);
-            
-            glDisableVertexAttribArray(obj::POS_BUF_ID);
-            glDisableVertexAttribArray(obj::COL_BUF_ID);
         }
-        virtual void render (const cr::camera& /*cam*/, const cr::mat4& /*modeltr*/, const cr::mesh_ux& /*mesh*/) override {}
-        virtual void render (const cr::camera& /*cam*/, const cr::mat4& /*modeltr*/, const cr::mesh_ix& /*mesh*/) override {}
 };
 
 
@@ -162,6 +188,11 @@ class c_scene : public scene
 
             cameras.push_back(cam0);
             
+            rmode.camtype = 1;
+            rmode.objtype = 0;
+            rmode.colourmode = 2;
+            rmode.proctype = 0;
+            
             cr::renderer* renderer0 = new gsgl::r_matrix_p2();
             renderer0->setup(&rmode);
             renderers.push_back(renderer0);
@@ -182,6 +213,11 @@ class c_scene : public scene
             _conf.getvalue("window.alpha", rmode.alpha, 0.1f);
             
             scale = 1.0f;
+            panx = 0.0f;
+            pany = 0.0f;
+            axis = 0.0f;
+            rotation = 0.0f;
+            rotdir = false;
             
             //rmode.pointcnt = 1;
             //rmode.pointcoords[0] = 0.0f;
@@ -279,13 +315,9 @@ class c_scene : public scene
             base_last2 = -1;
             base_last  = 0;
             
-            
-            
             chaos_step(sweep);
             
             calc_matrices();
-            
-            nextColMode();
         }
         
         virtual ~c_scene()
@@ -305,8 +337,8 @@ class c_scene : public scene
         void calc_matrices()
         {
             model = cr::scale_mat(scale);
-            model *= cr::rotx_mat(rotation);
-            model *= cr::roty_mat(axis);
+            model *= cr::rotx_mat(rotation * cr::dtor);
+            model *= cr::roty_mat(axis * cr::dtor);
             model *= cr::move_mat(cr::vec3(panx, pany, 0.0f));
         }
         
@@ -343,7 +375,7 @@ class c_scene : public scene
                 int bi = next_base();
                 int diffb = std::abs(base_last - base_last2);
                 if (diffb > base_n/2) diffb = base_n - diffb;
-                float sc = 1.0f - 1.0f/float(diffb);
+                //float sc = 1.0f - 1.0f/float(diffb);
                 //float phi = (1.0f + std::sqrt(5.0f)) / 2.0f;
                 //float sc = phi;
                 v.x = (bases[bi*3]     - v.x) * sx + v.x;
@@ -365,25 +397,13 @@ class c_scene : public scene
         {
             framebuf->use();
             
-            renderers[used_render]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
-            renderers[used_render]->pre_render();
-            renderers[used_render]->render(*(cameras[used_cam]), model, meshbuffers);
+            renderers[0]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+            renderers[0]->pre_render();
+            renderers[0]->render(*(cameras[0]), model, meshbuffers);
+            
             if (show_helper)
             {
-                renderers[used_render]->render(*(cameras[used_cam]), model, helperbuf);
-            }
-            
-            if (used_render_2 >= 0)
-            {
-                renderers[used_render_2]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
-                glEnable(GL_POLYGON_OFFSET_FILL);
-                glPolygonOffset(1, 1);
-                renderers[used_render_2]->render(*(cameras[used_cam]), cr::mat4(), meshbuffers);
-                glDisable(GL_POLYGON_OFFSET_FILL);
-                if (show_helper)
-                {
-                    renderers[used_render_2]->render(*(cameras[used_cam]), model, helperbuf);
-                }
+                renderers[0]->render(*(cameras[0]), model, helperbuf);
             }
 
             framebuf->render();
@@ -458,18 +478,19 @@ class c_scene : public scene
             switch (key)
             {
                 case keys::I :
-                    nextCamMode();
+                    ++(rmode.camtype); if (rmode.camtype >= cr::render_mode::cam_n) rmode.camtype=0;
                     break;
                 
                 case keys::O :
-                    nextObjMode();
+                    //++(objrender); if (objrender >= cr::render_mode::obj_n) objrender=0;
                     break;
                 
                 case keys::P :
+                    ++(rmode.proctype); if (rmode.proctype >= cr::render_mode::pop_n) rmode.proctype=0;
                     break;
             
                 case keys::K :
-                    nextColMode();
+                    ++(rmode.colourmode); if (rmode.colourmode >= cr::render_mode::col_n) rmode.colourmode=0;
                     break;
 
                 case keys::BUT_1:
@@ -492,7 +513,8 @@ class c_scene : public scene
 
 int main ()
 {
-    cr::scripter ttconf("chaos_game.conf");
+    std::string confstr = cr::read_file("chaos_game.conf");
+    cr::scripter ttconf(confstr);
     
     global_loop = new glfw_loop(ttconf);
     scene* s = new c_scene(ttconf);
@@ -509,7 +531,7 @@ int main ()
     int ret = global_loop->loop();
     global_loop->done();
     
-    delete global_loop;
     delete s;
+    delete global_loop;
     return ret;
 }
