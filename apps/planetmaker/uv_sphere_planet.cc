@@ -101,6 +101,8 @@ void uv_sphere_planet::create_mesh ()
             
             planetMesh.add_lin(v0, v1, cr::material { pal->cols[ci] });
             planetMesh.add_lin(v0, v2, cr::material { pal->cols[ci] });
+            
+            planetMesh.add_pnt(v0, cr::material { pal->cols[ci] });
         }
     }
     
@@ -232,8 +234,8 @@ void uv_sphere_planet::create_contour ()
     }
     
     gsgl::clearGPU(planetGpu);
-    //gsgl::MUXtoGPU(planetMesh, contourMesh, planetGpu);
-    gsgl::MUXtoGPU(planetMesh, planetGpu);
+    gsgl::MUXtoGPU(planetMesh, contourMesh, planetGpu);
+    //gsgl::MUXtoGPU(planetMesh, planetGpu);
 }
 
 void uv_sphere_planet::crack (int k, float d)
@@ -290,14 +292,14 @@ void uv_sphere_planet::ds ()
     
     cr::fdice dice(220, -1.0f, 1.0f);
     //cr::fdice dice_checkers(200, -1000.0f, 100.0f);
-    cr::idice dice_checkers(200, -10, 2);
+    cr::idice dice_checkers(200, -2, 2);
     
     
     for (int y=N ; y < hy ; y+=N)
     {
         for (int x = 0 ; x < hx ; x+=N)
         {
-            heights[y*(hx+1) + x] = dice_checkers.next() * 50.0f;
+            heights[y*(hx+1) + x] = dice_checkers.next() * 1.0f;
         }
         heights[y*(hx+1) + hx] = heights[y*(hx+1)];
     }

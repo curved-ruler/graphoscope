@@ -51,6 +51,7 @@ void MUXtoGPU (const cr::mesh_ux& triobj, const cr::mesh_ux& linobj, cr::rrr_buf
 {
     buf.trin = (uint32)triobj.triangles.size() / cr::mesh_ux::tsize;
     buf.linn = (uint32)linobj.lines.size()     / cr::mesh_ux::lsize;
+    buf.pntn = (uint32)triobj.points.size()    / cr::mesh_ux::psize;
     
     buf.tri_buf = 0;
     buf.lin_buf = 0;
@@ -64,6 +65,13 @@ void MUXtoGPU (const cr::mesh_ux& triobj, const cr::mesh_ux& linobj, cr::rrr_buf
     
     glBindBuffer(GL_ARRAY_BUFFER, buf.lin_buf);
     glBufferData(GL_ARRAY_BUFFER, linobj.lines.size() * sizeof(float), linobj.lines.data(), GL_STATIC_DRAW);
+    
+    if (buf.pntn > 0)
+    {
+        glGenBuffers(1, &(buf.pnt_buf));
+        glBindBuffer(GL_ARRAY_BUFFER, buf.pnt_buf);
+        glBufferData(GL_ARRAY_BUFFER, triobj.points.size() * sizeof(float), triobj.points.data(), GL_STATIC_DRAW);
+    }
 }
 
 void updateGPU (const cr::mesh_ux& obj, cr::rrr_buffers& buffers)

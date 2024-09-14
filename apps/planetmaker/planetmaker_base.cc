@@ -61,6 +61,8 @@ planetmaker_base::planetmaker_base(cr::scripter& _conf) : scene(_conf)
     rmode.colourmode = 2;
     rmode.proctype = 0;
     
+    rmode.pointsize = 20.0f;
+    
     cr::renderer* rrr_n = new gsgl::r_nshaded();
     cr::renderer* rrr_v = new gsgl::r_vshaded();
     rrr_n->setup(&rmode);
@@ -249,11 +251,11 @@ void planetmaker_base::keyaction(int key, int action, int /*mods*/) {
         case keys::I :
             ++(rmode.camtype); if (rmode.camtype >= cr::render_mode::cam_n) rmode.camtype=0;
             break;
-                
+            
         case keys::O :
             ++(objrender); if (objrender >= cr::render_mode::obj_n) objrender=0;
             break;
-                
+            
         case keys::P :
             ++(rmode.proctype); if (rmode.proctype >= cr::render_mode::pop_n) rmode.proctype=0;
             break;
