@@ -18,6 +18,8 @@ uv_sphere_planet::uv_sphere_planet (cr::scripter& _conf, float _r, int _part_siz
     hx = 2*N*K;
     heights   = new float[(hx+1) * (hy+1)];
     std::memset(heights, 0, (hx+1) * (hy+1) * sizeof(float));
+    hmin = 0;
+    hmax = 0;
     
     dth = (cr::pi - 2.0f * th0) / (hy);
     dfi = (2.0f * cr::pi)       / (hx);
@@ -62,6 +64,20 @@ uv_sphere_planet::~uv_sphere_planet ()
     
     gsgl::clearGPU(planetGpu);
     gsgl::clearGPU(debugBuff);
+}
+
+void uv_sphere_planet::stat ()
+{
+    for (int i=0 ; i<hy ; ++i)
+    {
+        for (int j=0 ; j<hx ; ++j)
+        {
+            float h = heights[i*(hx+1) + j];
+            if (h > hmax) hmax = h;
+            if (h < hmin) hmin = h;
+        }
+    }
+    std::cout << "height: [" << hmin << ", " << hmax << "]\n"; 
 }
 
 void uv_sphere_planet::create_mesh ()
@@ -121,7 +137,7 @@ void uv_sphere_planet::create_contour ()
     int tas  = (int)cr::mesh_ux::tsize;
     int tris = (int)planetMesh.triangles.size() / tas;
     
-    for (float planez = radius*0.9f ; planez <= radius*1.1f ; planez += dz)
+    for (float planez = radius+hmin ; planez <= radius+hmax ; planez += dz)
     {
         for (int x=0 ; x<tris ; ++x)
         {
@@ -280,6 +296,7 @@ void uv_sphere_planet::crack (int k, float d)
     gsgl::MUXtoGPU(debugMesh, debugBuff);
 #endif
     
+    stat();
     create_mesh();
 }
 
@@ -393,6 +410,7 @@ void uv_sphere_planet::ds ()
     }
     */
     
+    stat();
     create_mesh();
 }
 
@@ -422,6 +440,7 @@ void uv_sphere_planet::rnd_octaves ()
         heights[y*(hx+1) + hx] = heights[y*(hx+1)];
     }
     
+    stat();
     create_mesh();
 }
 

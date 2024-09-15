@@ -6,7 +6,7 @@
 #include <vector>
 #include <string>
 
-#define DEBUG_CRACK
+//#define DEBUG_CRACK
 
 struct uv_sphere { float fi; float th; };
 
@@ -25,6 +25,7 @@ class uv_sphere_planet
         
         int hy, hx;
         float* heights;
+        float hmin, hmax;
         
         cr::mesh_ux planetMesh;
         cr::mesh_ux contourMesh;
@@ -44,6 +45,8 @@ class uv_sphere_planet
         
         void create_mesh();
         void create_contour();
+        
+        void stat();
         
         void ds();
         void rnd_octaves();
