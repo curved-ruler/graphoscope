@@ -68,6 +68,8 @@ uv_sphere_planet::~uv_sphere_planet ()
 
 void uv_sphere_planet::stat ()
 {
+    hmax = -10000;
+    hmin =  10000;
     for (int i=0 ; i<hy ; ++i)
     {
         for (int j=0 ; j<hx ; ++j)
@@ -309,7 +311,7 @@ void uv_sphere_planet::ds ()
     
     cr::fdice dice(220, -1.0f, 1.0f);
     //cr::fdice dice_checkers(200, -1000.0f, 100.0f);
-    cr::idice dice_checkers(200, -2, 2);
+    cr::idice dice_checkers(200, -4, 4);
     
     
     for (int y=N ; y < hy ; y+=N)
@@ -320,8 +322,9 @@ void uv_sphere_planet::ds ()
         }
         heights[y*(hx+1) + hx] = heights[y*(hx+1)];
     }
-    for (int x = 0 ; x <= hx ; ++x) { heights[x] = -100.0f; heights[(hy)*(hx+1) + x] = -100.0f; }
+    for (int x = 0 ; x <= hx ; ++x) { heights[x] = -20.0f; heights[(hy)*(hx+1) + x] = -20.0f; }
     
+    //stat();
     //create_mesh();
     //return;
     
@@ -432,7 +435,8 @@ void uv_sphere_planet::rnd_octaves ()
             for (int ni = 0 ; ni < oct_n ; ++ni)
             {
                 cr::vec3 fi = grad_noise(cr::vec2((float)y/(float)hy*sigmai, (float)x/(float)hx*sigmai));
-                sum += (((fi.x * 4.0f + 2.0f) * (max-min)) + min) / sigmai;
+                //sum += (((fi.x * 4.0f + 2.0f) * (max-min)) + min) / sigmai;
+                sum += (((fi.x) * (max-min)) + min) / sigmai;
                 sigmai *= sigma;
             }
             heights[y*(hx+1) + x] = sum;
