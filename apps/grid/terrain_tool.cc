@@ -22,12 +22,10 @@ int main ()
     scene* tts = new grid_scene(ttconf);
     global_loop->set_scene(tts);
     
-    
     glfwSetKeyCallback        (global_loop->window, key_callback);
     glfwSetScrollCallback     (global_loop->window, scroll_callback);
     glfwSetCursorPosCallback  (global_loop->window, cursorpos_callback);
     glfwSetMouseButtonCallback(global_loop->window, mousebutton_callback);
-    
     
     int ret = global_loop->loop();
     global_loop->done();

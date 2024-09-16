@@ -1,6 +1,5 @@
-#pragma once
 
-#include <crcc/crcc.hh>
+#pragma once
 
 namespace ter {
 

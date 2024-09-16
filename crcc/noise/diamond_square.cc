@@ -1,3 +1,4 @@
+
 #include "diamond_square.hh"
 
 #include <iostream>
@@ -44,14 +45,17 @@ void ds_square (float* hmap, int hw, int hh,
                 float c = hmap[y*hw + (x+i)];
                 float d = hmap[(y+i)*hw + (x+i)];
                 float r = dice.next() * i * 0.3f;
-                //float r = 0.0f;
-                //hmap[(y+ip2) * hw + (x+ip2)] = (a + b + c + d) / 4.0f + r;
-                //hmap[(y+ip2) * hw + (x+ip2)] = (a+b)/2.0f + r;
+                
+                hmap[(y+ip2) * hw + (x+ip2)] = (a + b + c + d) / 4.0f + r;
+                //hmap[(y+ip2) * hw + (x+ip2)] = (a+b+c+d+d)/4.0f;
+                /*
                 float rnd = dice.next();
                 float hhh = rnd < -0.5f ? a :
                             rnd <  0.0f ? b :
                             rnd <  0.5f ? c : d;
-                hmap[(y+ip2) * hw + (x+ip2)] = hhh + r;
+                //hmap[(y+ip2) * hw + (x+ip2)] = hhh + r;
+                hmap[(y+ip2) * hw + (x+ip2)] = hhh;
+                */
             }
         }
         //std::cout << "D" << std::endl;
@@ -105,15 +109,17 @@ void ds_square (float* hmap, int hw, int hh,
                 else { p -= 1.0f; }
                 
                 float r = dice.next() * ip2 * 0.3f;
-                //float r = 0.0f;
                 
-                //hmap[y*hw + x] = (a + b + c + d) / p + r;
-                //hmap[y*hw + x] = (a+b)/2.0f + r;
+                hmap[y*hw + x] = (a + b + c + d) / p + r;
+                //hmap[y*hw + x] = (a+b+c+d+d)/(p);
+                /*
                 float rnd = dice.next();
                 float hhh = rnd < -0.5f ? a :
                             rnd <  0.0f ? b :
                             rnd <  0.5f ? c : d;
-                hmap[y*hw + x] = hhh + r;
+                //hmap[y*hw + x] = hhh + r;
+                hmap[y*hw + x] = hhh;
+                */
             }
             ++alt;
         }

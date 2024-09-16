@@ -76,6 +76,31 @@ std::string trim (const std::string& s)
     else return s.substr(first, (last-first+1));
 }
 
+void split (const std::string& s, std::vector<std::string>& tokens, std::string delimiter)
+{
+    if (delimiter.size() < 1) return;
+    
+    size_t pos1 = 0;
+    size_t pos2 = 0;
+    while ((pos2 = s.find(delimiter, pos1)) != std::string::npos) {
+        tokens.push_back( s.substr(pos1, pos2-pos1) );
+        pos1 = pos2+delimiter.size();
+    }
+    tokens.push_back( s.substr(pos1) );
+}
+
+bool starts_w (const std::string& s, const std::string& w)
+{
+    for (size_t i=0 ; i<w.size() ; ++i)
+    {
+        if (i >= s.size()) return false;
+        if (s[i] != w[i])  return false;
+    }
+    return true;
+}
+
+
+
 bool parenthesis_check(const std::string& s)
 {
     // not proper: immediate negative values check also

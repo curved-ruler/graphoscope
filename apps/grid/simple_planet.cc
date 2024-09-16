@@ -389,7 +389,7 @@ void terrain_part::create_contour (ter::terrain_data_square* map, int px, int py
                 cgeom->add_tri(v5, v4,  v4z, col, newnorm);
                 cgeom->add_tri(v5, v4z, v5z, col, newnorm);
                 
-                if (planez < 0.0f) {v4.z = 0.0f; v5.z=0.0f;}
+                //if (planez < 0.0f) {v4.z = 0.0f; v5.z=0.0f;}
                 cgeom->add_lin(v4, v5, col);
             }
             
@@ -468,7 +468,7 @@ void terrain_part::create_contour (ter::terrain_data_square* map, int px, int py
                 cgeom->add_tri(v5, v4,  v4z, col, newnorm);
                 cgeom->add_tri(v5, v4z, v5z, col, newnorm);
                 
-                if (planez < 0.0f) {v4.z = 0.0f; v5.z=0.0f;}
+                //if (planez < 0.0f) {v4.z = 0.0f; v5.z=0.0f;}
                 cgeom->add_lin(v4, v5, col);
             }
             
@@ -481,9 +481,9 @@ void terrain_part::create_contour (ter::terrain_data_square* map, int px, int py
     }
     }
     
-    gsgl::MUXtoGPU(*cgeom, gpuGrid);
-    //gsgl::MBtoGPU(grdgeom, cgeom, gpuGrid);
-    //gsgl::hardUpdateGPU(gridgeom, cgeom, gpuGrid);
+    gsgl::clearGPU(gpuGrid);
+    //gsgl::MUXtoGPU(*cgeom, gpuGrid);
+    gsgl::MUXtoGPU(*gridgeom, *cgeom, gpuGrid);
 }
 
 /*
@@ -659,8 +659,11 @@ simple_planet::simple_planet(int p_partsize, int p_x, int p_y)
     noises->xscale = 15.0f;
     noises->yscale = 15.0f;
     
-    delnoise_gen = nullptr;
-    init_delnoise();
+    delnoise_gen = new ter::del_noise();
+    delnoise_gen->xscale = 1.0f;
+    delnoise_gen->yscale = 1.0f;
+    delnoise_gen->xp = 0.0f;
+    delnoise_gen->yp = 0.0f;
     
     parts = new terrain_part*[pw*ph];
     for (int j=0 ; j<ph ; ++j)
@@ -707,9 +710,9 @@ void simple_planet::color ()
 {
     cr::vec3 v0, v1, v2, v3, norm;
     
-    //cr::fdice d1(120, -0.5f, 0.5f);
+    cr::fdice d1(120, -0.5f, 0.5f);
     
-    float d1 = -0.05;
+    //float d1 = -0.05;
     
     for (int y=0 ; y<map->H ; ++y)
     {
@@ -764,22 +767,13 @@ void simple_planet::color ()
             unsigned int ci2 = pal2->get(zm);
             cr::vec3 rgb = pal2->cols[ci2];
             cr::vec3 hsv = cr::rgb2hsv(rgb);
-            hsv.x += d1;
+            //hsv.x += d1.next() * 0.1f;
             map->col[y*W + x] = cr::hsv2rgb(cr::vec3(hsv.x, 0.9, 0.9));
             
-            d1 += 0.001;
-            if (d1 > 0.05) d1 = -0.05;
+            //d1 += 0.001;
+            //if (d1 > 0.05) d1 = -0.05;
         }
     }
-}
-
-void simple_planet::init_delnoise()
-{
-    delnoise_gen = new ter::del_noise();
-    delnoise_gen->xscale = 2.1f;
-    delnoise_gen->yscale = 2.1f;
-    delnoise_gen->xp = 0.0f;
-    delnoise_gen->yp = 0.0f;
 }
 
 void simple_planet::reset ()
@@ -1060,13 +1054,13 @@ void simple_planet::generate_delaunay (bool slice)
 {
     contoured = false;
     
-    if (!delnoise_gen) init_delnoise();
-    
     for (int x=0 ; x<W ; ++x)
     {
         for (int y=0 ; y<H ; ++y)
         {
-            map->height[y*W + x] = 1.5f * delnoise_gen->fbm(float(x), float(y));
+            //map->height[y*W + x] = 1.5f * delnoise_gen->base(float(x), float(y));
+            //map->height[y*W + x] = 1.5f * delnoise_gen->fbm(float(x), float(y));
+            map->height[y*W + x] = 1.5f * delnoise_gen->domain_warp(float(x), float(y));
         }
     }
     edgefit(5);

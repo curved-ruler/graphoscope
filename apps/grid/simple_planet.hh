@@ -3,13 +3,6 @@
 
 #include <crcc/crcc.hh>
 #include <gsgl/gsgl.hh>
-#include "genmod/gen.hh"
-#include "genmod/noise.hh"
-#include "genmod/diamond_square.hh"
-#include "genmod/erosion.hh"
-#include "genmod/del_noise.hh"
-#include "genmod/kernel.hh"
-#include "genmod/game_of_life.hh"
 
 #include <vector>
 #include <string>

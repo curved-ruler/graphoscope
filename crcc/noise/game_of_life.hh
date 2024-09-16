@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <crcc/crcc.hh>
-
 namespace ter {
 
 void game_of_life           (float* hmap, float* hmap2, int w, int h);

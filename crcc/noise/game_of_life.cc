@@ -1,6 +1,8 @@
 
 #include "game_of_life.hh"
 
+#include "../base.hh"
+
 #include <cstring>
 #include <cmath>
 

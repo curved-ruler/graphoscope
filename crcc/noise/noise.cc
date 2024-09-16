@@ -1,7 +1,7 @@
 
 #include "noise.hh"
 
-#include <crcc/crcc.hh>
+#include <cmath>
 #include <iostream>
 
 

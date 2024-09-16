@@ -1,7 +1,7 @@
 
 #include "del_noise.hh"
 
-#include <crcc/crcc.hh>
+#include "../math/mu.hh"
 #include <iostream>
 #include <vector>
 
@@ -68,12 +68,12 @@ del_noise::del_noise()
                 if ( cr::tri_inside(va, vb, vc, pxy) )
                 {
                     cr::vec3 bary = barycentric(va, vb, vc, pxy);
-                    /*
+                    
                     val = bary.x * pt_value[ tris[ti*3] ] +
                           bary.y * pt_value[ tris[ti*3+1] ] +
                           bary.z * pt_value[ tris[ti*3+2] ];
-                    */
-                    val = 30.0f * std::max(bary.x, std::max(bary.y, bary.z)) - 15.0f;
+                    
+                    //val = 30.0f * std::max(bary.x, std::max(bary.y, bary.z)) - 15.0f;
                     break;
                 }
             }

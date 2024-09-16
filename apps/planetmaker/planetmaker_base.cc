@@ -314,11 +314,11 @@ void planetmaker_base::keyaction(int key, int action, int /*mods*/) {
             break;
             
         case keys::R :
-            //planet->erosion_step();
+            planet->del_noise();
             break;
         
         case keys::H :
-            planet->rnd_octaves();
+            planet->noise1();
             break;
             
         case keys::MINUS :

@@ -304,6 +304,7 @@ void uv_sphere_planet::crack (int k, float d)
 
 void uv_sphere_planet::ds ()
 {
+    /*
     float hm, sigma;
     conf.getvalue("ds.radius_per_rand", hm, 10.0f);
     conf.getvalue("ds.sigma", sigma, 2.0f);
@@ -323,11 +324,12 @@ void uv_sphere_planet::ds ()
         heights[y*(hx+1) + hx] = heights[y*(hx+1)];
     }
     for (int x = 0 ; x <= hx ; ++x) { heights[x] = -20.0f; heights[(hy)*(hx+1) + x] = -20.0f; }
-    
-    //stat();
-    //create_mesh();
-    //return;
-    
+    */
+    ter::ds_square_grid(heights, N, 2*K, K);
+    stat();
+    create_mesh();
+    return;
+    /*
     int i = N;
     float isigma = 1.0f;
     
@@ -397,7 +399,7 @@ void uv_sphere_planet::ds ()
     }
     
     for (int y = 0 ; y <= hy ; ++y) { heights[y*(hx+1) + hx] = heights[y*(hx+1)]; }
-    
+    */
     /*
     int lr = N/7;
     float lambda = 1.0f;
@@ -417,7 +419,7 @@ void uv_sphere_planet::ds ()
     create_mesh();
 }
 
-void uv_sphere_planet::rnd_octaves ()
+void uv_sphere_planet::noise1 ()
 {
     float min, max, sigma;
     int oct_n;
@@ -426,20 +428,37 @@ void uv_sphere_planet::rnd_octaves ()
     conf.getvalue("octaves.sigma", sigma, 2.0f);
     conf.getvalue("octaves.oct_n", oct_n, 1);
     
+    ter::noise_grad n;
+    
     for (int y=0 ; y <= hy ; ++y)
     {
         for (int x = 0 ; x < hx ; ++x)
         {
-            float sum = 0.0f;
-            float sigmai = 1.0f;
-            for (int ni = 0 ; ni < oct_n ; ++ni)
-            {
-                cr::vec3 fi = grad_noise(cr::vec2((float)y/(float)hy*sigmai, (float)x/(float)hx*sigmai));
-                //sum += (((fi.x * 4.0f + 2.0f) * (max-min)) + min) / sigmai;
-                sum += (((fi.x) * (max-min)) + min) / sigmai;
-                sigmai *= sigma;
-            }
-            heights[y*(hx+1) + x] = sum;
+            heights[y*(hx+1) + x] = (max-min) * n.fbm(float(x)/64.0f, float(y)/64.0f, oct_n, 1.0f/sigma) + min;
+        }
+        heights[y*(hx+1) + hx] = heights[y*(hx+1)];
+    }
+    
+    stat();
+    create_mesh();
+}
+
+void uv_sphere_planet::del_noise ()
+{
+    float min, max, sigma;
+    int oct_n;
+    conf.getvalue("octaves.rndo_min", min, -1.0f);
+    conf.getvalue("octaves.rndo_max", max,  1.0f);
+    conf.getvalue("octaves.sigma", sigma, 2.0f);
+    conf.getvalue("octaves.oct_n", oct_n, 1);
+    
+    ter::del_noise nd;
+    
+    for (int y=0 ; y <= hy ; ++y)
+    {
+        for (int x = 0 ; x < hx ; ++x)
+        {
+            heights[y*(hx+1) + x] = (max-min) * nd.value_noise(float(x)/8.0f, float(y)/8.0f) + min;
         }
         heights[y*(hx+1) + hx] = heights[y*(hx+1)];
     }

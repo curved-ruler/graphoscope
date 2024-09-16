@@ -1,7 +1,6 @@
 #pragma once
 
 #include <random>
-#include "vec.hh"
 
 namespace cr {
 
@@ -28,7 +27,5 @@ class idice
         ~idice();
         int next();
 };
-
-vec3 grad_noise (vec2 x);
 
 }

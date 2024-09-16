@@ -20,8 +20,10 @@ struct stringlines
 };
 
 std::string show (const std::string& s);
-
 std::string trim (const std::string& s);
+void split    (const std::string& s, std::vector<std::string>& tokens, std::string delimiter);
+bool starts_w (const std::string& s, const std::string& w);
+
 
 bool parenthesis_check(const std::string& s);
 

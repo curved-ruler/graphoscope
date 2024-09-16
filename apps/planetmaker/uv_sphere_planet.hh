@@ -49,7 +49,8 @@ class uv_sphere_planet
         void stat();
         
         void ds();
-        void rnd_octaves();
+        void noise1();
+        void del_noise();
         void crack(int k, float d);
         
         //void get_surface (cr::vec3 test_in, cr::vec3& out);
