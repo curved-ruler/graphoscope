@@ -34,6 +34,7 @@ class uv_sphere_planet
         cr::rrr_buffers debugBuff;
         
         cr::fdice* dice01;
+        ter::del_noise* noised;
         cr::height_pal* pal;
         
         cr::scripter& conf;

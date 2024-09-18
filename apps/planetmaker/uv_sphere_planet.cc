@@ -26,6 +26,12 @@ uv_sphere_planet::uv_sphere_planet (cr::scripter& _conf, float _r, int _part_siz
     
     dice01 = new cr::fdice(120, 0.0f, 1.0f);
     
+    noised = new ter::del_noise();
+    noised->xscale = 1.0f;
+    noised->yscale = 1.0f;
+    noised->xp = 0.0f;
+    noised->yp = 0.0f;
+    
     std::string palname;
     conf.getvalue("colscheme.used", palname);
     int palsize  = conf.arraysize(std::string("colscheme.limits")+palname);
@@ -61,6 +67,7 @@ uv_sphere_planet::~uv_sphere_planet ()
     delete[] heights;
     
     delete dice01;
+    delete noised;
     
     gsgl::clearGPU(planetGpu);
     gsgl::clearGPU(debugBuff);
@@ -134,7 +141,9 @@ void uv_sphere_planet::create_contour ()
     cr::vec3 v0, v1, v2, v4, v5, newnorm, norm, col;
     cr::vec3 zi(0.0f, 0.0f, 1.0f);
     
-    float dz = 0.2f * radius / 40.0f;
+    //float dz = 0.2f * radius / 40.0f;
+    float dz = 20.0f;
+    conf.getvalue("contour.dz", dz, 10.0f);
     
     int tas  = (int)cr::mesh_ux::tsize;
     int tris = (int)planetMesh.triangles.size() / tas;
@@ -452,13 +461,11 @@ void uv_sphere_planet::del_noise ()
     conf.getvalue("octaves.sigma", sigma, 2.0f);
     conf.getvalue("octaves.oct_n", oct_n, 1);
     
-    ter::del_noise nd;
-    
     for (int y=0 ; y <= hy ; ++y)
     {
-        for (int x = 0 ; x < hx ; ++x)
+        for (int x=0 ; x < hx ; ++x)
         {
-            heights[y*(hx+1) + x] = (max-min) * nd.value_noise(float(x)/8.0f, float(y)/8.0f) + min;
+            heights[y*(hx+1) + x] = (max-min) * noised->value_noise(float(x)/32.0f, float(y)/32.0f) + min;
         }
         heights[y*(hx+1) + hx] = heights[y*(hx+1)];
     }

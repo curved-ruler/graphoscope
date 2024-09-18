@@ -101,15 +101,8 @@ planetmaker_base::planetmaker_base(cr::scripter& _conf) : scene(_conf)
     worldCoord->set_lin(2, cr::vec3{0,0,0}, cr::vec3{0,0,1}, cr::material { cr::vec3{0,0,1} });
     gsgl::MUXtoGPU(*worldCoord, worldCoordGpu);
     
-    /*
-    rmode.back[0] = 1.0f;
-    rmode.back[1] = 1.0f;
-    rmode.back[2] = 1.0f;
-    sysconf.getarray("window.backgr", rmode.back, 3);
-    */
-    
-    sysconf.getvalue("data.simn", simn, 1);
-    sysconf.getvalue("data.simr", simr, 10.0f);
+    sysconf.getvalue("crack.simn", simn, 1);
+    sysconf.getvalue("crack.simr", simr, 10.0f);
     
     planet = new uv_sphere_planet(sysconf, radius, cr::powi(2, lod), K);
     planet->scale = 1.0f;
