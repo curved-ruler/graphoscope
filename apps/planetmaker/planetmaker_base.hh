@@ -26,8 +26,6 @@ class planetmaker_base : public scene
         int lod;
         float radius;
         
-        int cam_handling;
-        
         int   simn;
         float simr;
         

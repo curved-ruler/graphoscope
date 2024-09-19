@@ -21,14 +21,13 @@ planetmaker_base::planetmaker_base(cr::scripter& _conf) : scene(_conf)
     sysconf.getvalue("data.lod", lod, 2);
     sysconf.getvalue("data.k", K, 1);
     sysconf.getvalue("data.radius", radius, 100.0f);
-    sysconf.getvalue("window.cam_handling", cam_handling, 0);
     sysconf.getvalue("window.alpha", rmode.alpha, 0.3f);
     
-    float f = (cam_handling == 0) ? 500.0f * 0.9f : 1000.0f;
+    
     cr::camera* cam0 = new cr::camera();
     cam0->near  = 1.0f;
-    cam0->far   = f;
-    cam0->focal = f / 2.0f;
+    cam0->far   = 500.0f;
+    cam0->focal = 500.0f * 0.9f;
     cam0->pos   = cr::vec3(-500.0f,  0.0f, 0.0f);
     cam0->up    = cr::vec3( 0.0f,  0.0f, 1.0f);
     cam0->look  = cr::vec3( 1.0f,  0.0f, 0.0f);
@@ -130,30 +129,13 @@ void planetmaker_base::save () {}
 
 void planetmaker_base::mousescroll (float /*x*/, float y)
 {
-    if (cam_handling == 0)
+    if (y > 0.0f)
     {
-        if (y > 0.0f)
-        {
-            planet->scale *= 1.25f;
-        }
-        else
-        {
-            planet->scale *= 0.8f;
-        }
+        planet->scale *= 1.25f;
     }
     else
     {
-        //float p = std::max(std::fabs(cameras[0]->pos.x), 100.0f);
-        if (y > 0.0f)
-        {
-            //cameras[0]->pos.x += 0.05f * p;
-            cameras[0]->pos.x += 70.0f;
-        }
-        else
-        {
-            //cameras[0]->pos.x -= 0.05f * p;
-            cameras[0]->pos.x -= 70.0f;
-        }
+        planet->scale *= 0.8f;
     }
 }
 
@@ -312,6 +294,10 @@ void planetmaker_base::keyaction(int key, int action, int /*mods*/) {
         
         case keys::H :
             planet->noise1();
+            break;
+            
+        case keys::V :
+            (cameras[0]->far > 600.0f) ? cameras[0]->far = 500.0f : cameras[0]->far = 1000.0f;
             break;
             
         case keys::MINUS :
