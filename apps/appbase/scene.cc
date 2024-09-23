@@ -17,6 +17,7 @@ scene::scene(cr::scripter& _conf) : sysconf(_conf)
     
     sysconf.getvalue("folders.shader_dir", rmode.shader_dir);
     
+    sysconf.getvalue("window.point_size", rmode.pointsize, 2);
     sysconf.getvalue("window.pixel_size", rmode.pixel_size, 1);
     if (rmode.pixel_size < 1) rmode.pixel_size = 1;
     

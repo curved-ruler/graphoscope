@@ -60,8 +60,6 @@ planetmaker_base::planetmaker_base(cr::scripter& _conf) : scene(_conf)
     rmode.colourmode = 2;
     rmode.proctype = 0;
     
-    rmode.pointsize = 20.0f;
-    
     cr::renderer* rrr_n = new gsgl::r_nshaded();
     cr::renderer* rrr_v = new gsgl::r_vshaded();
     rrr_n->setup(&rmode);
