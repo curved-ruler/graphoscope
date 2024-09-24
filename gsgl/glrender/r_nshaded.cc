@@ -67,17 +67,36 @@ void r_nshaded::render(const cr::camera& cam, const cr::mat4& modeltr, const cr:
     
     //glBindVertexArray(mesh->vao);
     
+    bool has_normal = false;
     switch (settings->objtype)
     {
-        case 0:  glBindBuffer(GL_ARRAY_BUFFER, bufs.pnt_buf); break;
-        case 1:  glBindBuffer(GL_ARRAY_BUFFER, bufs.lin_buf); break;
-        default: glBindBuffer(GL_ARRAY_BUFFER, bufs.tri_buf); break;
+        case 0:
+            glBindBuffer(GL_ARRAY_BUFFER, bufs.pnt_buf);
+            has_normal = bufs.pnorm;
+            break;
+        case 1:
+            glBindBuffer(GL_ARRAY_BUFFER, bufs.lin_buf);
+            has_normal = bufs.lnorm;
+            break;
+        default:
+            glBindBuffer(GL_ARRAY_BUFFER, bufs.tri_buf);
+            has_normal = bufs.tnorm;
+            break;
     }
     
     glEnableVertexAttribArray(obj::POS_BUF_ID);
     glEnableVertexAttribArray(obj::COL_BUF_ID);
-    glVertexAttribPointer(obj::POS_BUF_ID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(NULL));
-    glVertexAttribPointer(obj::COL_BUF_ID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
+    
+    if (has_normal)
+    {
+        glVertexAttribPointer(obj::POS_BUF_ID, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(NULL));
+        glVertexAttribPointer(obj::COL_BUF_ID, 3, GL_FLOAT, GL_FALSE, 9*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
+    }
+    else
+    {
+        glVertexAttribPointer(obj::POS_BUF_ID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(NULL));
+        glVertexAttribPointer(obj::COL_BUF_ID, 3, GL_FLOAT, GL_FALSE, 6*sizeof(float), BUFFER_OFFSET(3 * sizeof(float)));
+    }
     
     cr::mat4 view = cam.view_mat();
     cr::mat4 proj = (settings->camtype == 0) ? cam.ortho_mat() : cam.persp_mat();

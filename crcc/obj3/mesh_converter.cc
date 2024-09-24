@@ -36,7 +36,7 @@ mesh_ux* bm1_to_meshux (const std::string& filename)
     file.read((char*)&l, sizeof(unsigned int));
     //std::cout << l << std::endl;
     
-    mesh_ux* retmesh = new mesh_ux(t, l, 0);
+    mesh_ux* retmesh = new mesh_ux(t, true, l, false, 0, false);
     
     // cols
     float* cols = new float[c*3];
@@ -61,11 +61,14 @@ mesh_ux* bm1_to_meshux (const std::string& filename)
     {
         mat.albedo = vec3{ cols[tc[i]*3], cols[tc[i]*3 + 1], cols[tc[i]*3 + 2] };
         
-        retmesh->set_tri(i,
-                         vec3{ verts[tris[i*3]*3],     verts[tris[i*3]*3 + 1],     verts[tris[i*3]*3 + 2] },
-                         vec3{ verts[tris[i*3 + 1]*3], verts[tris[i*3 + 1]*3 + 1], verts[tris[i*3 + 1]*3 + 2] },
-                         vec3{ verts[tris[i*3 + 2]*3], verts[tris[i*3 + 2]*3 + 1], verts[tris[i*3 + 2]*3 + 2]  },
-                         mat);
+        vec3 v0 = vec3{ verts[tris[i*3]*3],     verts[tris[i*3]*3 + 1],     verts[tris[i*3]*3 + 2] };
+        vec3 v1 = vec3{ verts[tris[i*3 + 1]*3], verts[tris[i*3 + 1]*3 + 1], verts[tris[i*3 + 1]*3 + 2] };
+        vec3 v2 = vec3{ verts[tris[i*3 + 2]*3], verts[tris[i*3 + 2]*3 + 1], verts[tris[i*3 + 2]*3 + 2]  };
+        
+        vec3 norm = cross((v1-v0), (v2-v0));
+        norm.normalize();
+        
+        retmesh->set_tri_n(i, v0, v1, v2, mat, norm);
     }
     
     for (unsigned int i=0 ; i<l ; ++i)
@@ -187,7 +190,7 @@ mesh_ux* terr_to_meshux (const std::string& filename)
     //uint32 l = (nx)*(ny)*2 + (nx+ny);
     uint32 l = (nx)*(ny)*2;
     uint32 p = nx*ny;
-    mesh_ux* retmesh = new mesh_ux(t, l, p);
+    mesh_ux* retmesh = new mesh_ux(t, true, l, true, p, true);
     
     float  Z[(nx+1)*(ny+1)];
     uint32 C[(nx+1)*(ny+1)];
@@ -214,6 +217,12 @@ mesh_ux* terr_to_meshux (const std::string& filename)
         z2 = z2 * scale;
         z3 = z3 * scale;
         z4 = z4 * scale;
+        vec3 v0 = vec3{ float(x),   float(y),   z1 };
+        vec3 v1 = vec3{ float(x),   float(y+1), z2 };
+        vec3 v2 = vec3{ float(x+1), float(y),   z3 };
+        vec3 v3 = vec3{ float(x+1), float(y+1), z4 };
+        vec3 norm = cross((v1-v0), (v2-v0));
+        norm.normalize();
         
         
         uint32 ci = C[y*(nx+1)+x];
@@ -223,42 +232,17 @@ mesh_ux* terr_to_meshux (const std::string& filename)
         mat.albedo.y = float(gg)/255.0f;
         mat.albedo.z = float(bb)/255.0f;
         
-        retmesh->set_tri((y*(nx)+x)*2,
-                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y+1, z2 },
-                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y,   z1 },
-                         //vec3{ -float(nx)/2.0f+x+1, -float(ny)/2.0f+y,   z3 },
-                         vec3{ float(x),   float(y+1), z2 },
-                         vec3{ float(x),   float(y),   z1 },
-                         vec3{ float(x+1), float(y),   z3 },
-                         mat);
+        retmesh->set_tri_n((y*(nx)+x)*2,  v1,v0,v2,mat,norm);
         
-        retmesh->set_tri((y*(nx)+x)*2 + 1,
-                         //vec3{ -float(nx)/2.0f+x+1, -float(ny)/2.0f+y,   z3 },
-                         //vec3{ -float(nx)/2.0f+x+1, -float(ny)/2.0f+y+1, z4 },
-                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y+1, z2 },
-                         vec3{ float(x+1), float(y),   z3 },
-                         vec3{ float(x+1), float(y+1), z4 },
-                         vec3{ float(x),   float(y+1), z2 },
-                         mat);
+        retmesh->set_tri_n((y*(nx)+x)*2 + 1,  v2,v3,v1,mat,norm);
         
-        retmesh->set_lin((y*(nx)+x)*2,
-                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y,   z1 },
-                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y+1, z2 },
-                         vec3{ float(x),   float(y),   z1 },
-                         vec3{ float(x),   float(y+1), z2 },
-                         mat);
+        retmesh->set_lin_n((y*(nx)+x)*2,  v0,v1,mat,norm);
         
-        retmesh->set_lin((y*(nx)+x)*2 + 1,
-                         //vec3{ -float(nx)/2.0f+x,   -float(ny)/2.0f+y,   z1 },
-                         //vec3{ -float(nx)/2.0f+x+1, -float(ny)/2.0f+y,   z3 },
-                         vec3{ float(x),   float(y),   z1 },
-                         vec3{ float(x+1), float(y),   z3 },
-                         mat);
+        retmesh->set_lin_n((y*(nx)+x)*2 + 1,  v0,v2,mat,norm);
         
-        retmesh->set_pnt((y*(nx)+x),
-                         //vec3{ -float(nx)/2.0f+x + 0.5f, -float(ny)/2.0f+y + 0.5f, (z1+z2+z3+z4)/4.0f },
+        retmesh->set_pnt_n((y*(nx)+x),
                          vec3{ float(x) + 0.5f, float(y) + 0.5f, (z1+z2+z3+z4)/4.0f },
-                         mat);
+                         mat, norm);
     }
     
     return retmesh;

@@ -44,6 +44,8 @@ enum pproc_mode
 struct rrr_buffers
 {
     public:
+        bool tnorm, lnorm, pnorm;
+        
         uint32 trin;
         uint32 tri_buf;
         uint32 linn;
@@ -67,8 +69,6 @@ public:
     static const uint8 obj_n = 6;
     uint8 proctype;
     static const uint8 pop_n = 3;
-    
-    bool has_normal;
     
     
     float back[4];
