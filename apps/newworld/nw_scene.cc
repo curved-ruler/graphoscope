@@ -69,6 +69,12 @@ nw_scene::nw_scene (cr::scripter& _conf) : scene(_conf)
     renderers.push_back(rrr_n);
     renderers.push_back(rrr_v);
     
+    sysconf.getvalue("render.engine", renderengine, "gsgl");
+    sysconf.getvalue("render.frames", rmode.frames, 1);
+    sysconf.getvalue("render.thread_n", rmode.thread_n, 1);
+    renderer_pt = new gscc::r_pathtracer();
+    renderer_pt->setup(&rmode);
+    
     
     showplane = true;
     
@@ -83,6 +89,8 @@ nw_scene::nw_scene (cr::scripter& _conf) : scene(_conf)
     delete planegeom;
     
     planet = new plain_planet(target_dir + cr::localize_path(p_s));
+    
+    renderer_pt->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
     
     //glClipControl(GL_LOWER_LEFT, GL_ZERO_TO_ONE);
     std::cout << "cam[u]" << std::endl;
@@ -155,12 +163,18 @@ void nw_scene::render ()
     //    rmode.colourmode = 2;
     //}
     
-    rmode.objtype = (objrender < 3) ? objrender : objrender-3;
-    used_render   = (rmode.objtype < 2) ? 0 : 1;
-    used_render_2 = (objrender < 3) ? -1 : 1;
+    int used_r[12] = {1,-1,  1,-1,  1,-1,  0,1,  0,1,  1,1};
+    int objt[12]   = {0,-1,  1,-1,  2,-1,  0,2,  1,2,  0,1};
+    
+    rmode.objtype = objt[objrender*2];
+    
+    used_render   = used_r[objrender*2];
+    used_render_2 = used_r[objrender*2+1];
     
     cr::mat4 pltr = cr::move_mat(plane->pos) * plane->orient.rot_mat() * cr::scale_mat(0.1f, 0.1f, 0.1f);
     
+    if (renderengine == "gsgl")
+    {
     renderers[used_render]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
     renderers[used_render]->pre_render();
     if (showplane) renderers[used_render]->render(*(cameras[used_cam]), pltr, planegpu);
@@ -168,7 +182,7 @@ void nw_scene::render ()
     
     if (used_render_2 >= 0)
     {
-        rmode.objtype = 2;
+        rmode.objtype = objt[objrender*2+1];
         //rmode.colourmode = x;
         //rmode.pp6size = 0.9f;
         renderers[used_render_2]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
@@ -177,6 +191,14 @@ void nw_scene::render ()
         if (showplane) renderers[used_render_2]->render(*(cameras[used_cam]), pltr, planegpu);
         planet->draw(*(cameras[used_cam]), renderers[used_render_2]);
         glDisable(GL_POLYGON_OFFSET_FILL);
+    }
+    
+    } else
+    {
+        //renderer_pt->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+        renderer_pt->pre_render();
+        planet->drawcpu(*(cameras[used_cam]), renderer_pt);
+        screen_tex->setdata(renderer_pt->screen);
     }
 
     framebuf->render();
@@ -246,7 +268,7 @@ void nw_scene::keyaction (int key, int action, int mods)
     }
 }
 
-void nw_scene::mousedrag   (float /*xpos*/, float /*ypos*/, float xdiff, float ydiff, int /*dragbutton*/)
+void nw_scene::mousedrag   (float /*xpos*/, float /*ypos*/, float /*xdiff*/, float /*ydiff*/, int /*dragbutton*/)
 {
     /*
     if (!used_vehicle)

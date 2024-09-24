@@ -40,6 +40,13 @@ void cell::draw (const cr::camera& c, cr::renderer* rrr) const
     rrr->render(c, im, gpuPointers);
 }
 
+void cell::drawcpu (const cr::camera& c, cr::renderer* rrr) const
+{
+    cr::mat4 im =  cr::move_mat(pos);
+             im *= cr::scale_mat(scale);
+    rrr->render(c, im, *geometry);
+}
+
 float cell::height (float xf, float yf, float tilesize)
 {
     int ii = std::floor(xf);
@@ -90,8 +97,8 @@ plain_planet::plain_planet (const std::string& mapfile)
     scale = 1.0f / 100.0f;
     pw = 0;
     ph = 0;
-    w = 5;
-    h = 5;
+    w = 3;
+    h = 3;
     xo1 = (-w) / 2;
     yo1 = (-h) / 2;
     partFiles = 0;
@@ -253,6 +260,18 @@ void plain_planet::draw (const cr::camera& cam, cr::renderer* rrr) const
     for (int i=0 ; i<w*h ; ++i) {
         if (parts[i] != 0) {
             parts[i]->draw(cam, rrr);
+        } else {
+            std::cout << "ERROR: plain_planet: nullpointer" << std::endl;
+            return;
+        }
+    }
+}
+
+void plain_planet::drawcpu (const cr::camera& cam, cr::renderer* rrr) const
+{
+    for (int i=0 ; i<w*h ; ++i) {
+        if (parts[i] != 0) {
+            parts[i]->drawcpu(cam, rrr);
         } else {
             std::cout << "ERROR: plain_planet: nullpointer" << std::endl;
             return;

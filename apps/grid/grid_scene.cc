@@ -62,8 +62,8 @@ grid_scene::grid_scene(cr::scripter& _conf) : scene(_conf)
     rrr_v = new gsgl::r_vshaded();
     rrr_n->setup(&rmode);
     rrr_v->setup(&rmode);
-    
-    //render_lines.resize(9);
+    renderers.push_back(rrr_n);
+    renderers.push_back(rrr_v);
     
     
     std::string planet_in;
@@ -96,8 +96,8 @@ grid_scene::grid_scene(cr::scripter& _conf) : scene(_conf)
 
 grid_scene::~grid_scene()
 {
-    delete rrr_n;
-    delete rrr_v;
+    //delete rrr_n;
+    //delete rrr_v;
     delete planet;
 }
 
@@ -185,55 +185,40 @@ void grid_scene::render()
     //if (!(framebuf->is_complete())) { std::cout << "NC" << std::endl; }
     framebuf->use();
     
-    rmode.objtype = objrender < 3 ? objrender : objrender-3;
+    int used_r[12] = {1,-1,  1,-1,  1,-1,  0,1,  0,1,  1,1};
+    int objt[12]   = {0,-1,  1,-1,  2,-1,  0,2,  1,2,  0,1};
+    
+    rmode.objtype = objt[objrender*2];
+    
+    used_render   = used_r[objrender*2];
+    used_render_2 = used_r[objrender*2+1];
+    
     cr::mat4 im;
     
-    if (rmode.objtype < 2)
+    renderers[used_render]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+    renderers[used_render]->pre_render();
+    
+    for (int i=0 ; i<planet->pw*planet->ph ; ++i)
     {
-        rrr_n->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
-        rrr_n->pre_render();
-        
-        for (int i=0 ; i<planet->pw*planet->ph ; ++i)
+        if (planet->parts[i] != 0)
         {
-            if (planet->parts[i] != 0)
-            {
-                im =  cr::move_mat(planet->parts[i]->pos);
-                im *= cr::scale_mat(planet->parts[i]->scale);
-                rrr_n->render(*cameras[used_cam], im, planet->parts[i]->gpuGrid);
-                if (sflow) rrr_n->render(*cameras[used_cam], im, planet->parts[i]->gpuFlow);
-            }
-            else
-            {
-                cout << "ERROR: simple_planet: nullpointer" << endl;
-                return;
-            }
+            im =  cr::move_mat(planet->parts[i]->pos);
+            im *= cr::scale_mat(planet->parts[i]->scale);
+            renderers[used_render]->render(*cameras[used_cam], im, planet->parts[i]->gpuGrid);
+            if (sflow) rrr_n->render(*cameras[used_cam], im, planet->parts[i]->gpuFlow);
         }
-    }
-    else
-    {
-        rrr_v->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
-        rrr_v->pre_render();
-        for (int i=0 ; i<planet->pw*planet->ph ; ++i)
+        else
         {
-            if (planet->parts[i] != 0)
-            {
-                im =  cr::move_mat(planet->parts[i]->pos);
-                im *= cr::scale_mat(planet->parts[i]->scale);
-                rrr_v->render(*cameras[used_cam], im, planet->parts[i]->gpuGrid);
-                if (sflow) rrr_n->render(*cameras[used_cam], im, planet->parts[i]->gpuFlow);
-            }
-            else
-            {
-                cout << "ERROR: simple_planet: nullpointer" << endl;
-                return;
-            }
+            cout << "ERROR: simple_planet: nullpointer" << endl;
+            return;
         }
     }
     
-    if (objrender >= 3)
+    if (used_render_2 > -1)
     {
-        rmode.objtype = 3;
-        rrr_v->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+        rmode.objtype = objt[objrender*2+1];
+        
+        renderers[used_render_2]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
         
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(1, 1);
@@ -243,7 +228,7 @@ void grid_scene::render()
             {
                 im =  cr::move_mat(planet->parts[i]->pos);
                 im *= cr::scale_mat(planet->parts[i]->scale);
-                rrr_v->render(*cameras[used_cam], im, planet->parts[i]->gpuGrid);
+                renderers[used_render_2]->render(*cameras[used_cam], im, planet->parts[i]->gpuGrid);
             }
         }
         glDisable(GL_POLYGON_OFFSET_FILL);
@@ -378,10 +363,10 @@ void grid_scene::keyaction(int key, int action, int mods)
             break;
             
         case keys::BUT_6 :
-            //planet->generate_delaunay(false);
+            planet->generate_delaunay(false);
             //planet->domain_warp(2, 0.7f);
             //planet->gen_noise();
-            planet->fbm(3, 0.7f);
+            //planet->fbm(3, 0.7f);
             planet->stat();
             break;
             

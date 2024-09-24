@@ -58,7 +58,7 @@ void terrain_part::init_grid()
     unsigned int t  = 2*size*size;
     unsigned int l  = 2*size*size;
     unsigned int p  = size*size;
-    gridgeom = new cr::mesh_ux(t, l, p);
+    gridgeom = new cr::mesh_ux(t, true, l, true, p, true);
     
     
     unsigned int t2  = 0;
@@ -69,7 +69,7 @@ void terrain_part::init_grid()
             if (((y % flow_density) == 0) && ((x % flow_density) == 0)) ++t2;
         }
     }
-    flowgeom = new cr::mesh_ux(t2, t2, 0);
+    flowgeom = new cr::mesh_ux(t2, true, t2, false, 0, false);
 
     gsgl::MUXtoGPU(*gridgeom, gpuGrid);
     gsgl::MUXtoGPU(*flowgeom, gpuFlow);
@@ -117,7 +117,7 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
                 v3 += v0;
                 v2 += v0;
                 
-                flowgeom->set_tri(ti2, v1, v2, v3, col, zi);
+                flowgeom->set_tri_n(ti2, v1, v2, v3, col, zi);
                 flowgeom->set_lin(li2, v0, v1, col);
                 ++ti2;
                 ++li2;
@@ -141,15 +141,15 @@ void terrain_part::readpart(simple_planet* planet, int px, int py)
             
             col.albedo = planet->map->getc(px*size + x, py*size + y);
             
-            gridgeom->set_tri(ti, v0, v1, v2, col, norm);
-            gridgeom->set_tri(ti+1, v1, v3, v2, col, norm);
+            gridgeom->set_tri_n(ti, v0, v1, v2, col, norm);
+            gridgeom->set_tri_n(ti+1, v1, v3, v2, col, norm);
             ti += 2;
             
-            gridgeom->set_lin(li, v0, v1, col);
-            gridgeom->set_lin(li+1, v0, v2, col);
+            gridgeom->set_lin_n(li, v0, v1, col, norm);
+            gridgeom->set_lin_n(li+1, v0, v2, col, norm);
             li += 2;
             
-            gridgeom->set_pnt(pi,   (v0+v1+v2)/3.0f, col);
+            gridgeom->set_pnt_n(pi, (v0+v1+v2)/3.0f, col, norm);
             //gridgeom->set_pnt(pi+1, (v1+v2+v3)/3.0f, col);
             pi += 1;
         }
@@ -198,7 +198,7 @@ void terrain_part::readpart_plates(cr::height_pal* pal, ter::terrain_data_square
                 v3 += v0;
                 v2 += v0;
                 
-                flowgeom->set_tri(ti2, v1, v2, v3, col, zi);
+                flowgeom->set_tri_n(ti2, v1, v2, v3, col, zi);
                 flowgeom->set_lin(li2, v0, v1, col);
                 ++ti2;
                 ++li2;
@@ -227,8 +227,8 @@ void terrain_part::readpart_plates(cr::height_pal* pal, ter::terrain_data_square
             unsigned int ci = pal->get(v0.z);
             col.albedo = pal->cols[ci];
             
-            gridgeom->set_tri(ti, v0, v1, v2, col, norm);
-            gridgeom->set_tri(ti+1, v1, v3, v2, col, norm);
+            gridgeom->set_tri_n(ti, v0, v1, v2, col, norm);
+            gridgeom->set_tri_n(ti+1, v1, v3, v2, col, norm);
             ti += 2;
             
             v0.x = float(x);
@@ -241,8 +241,8 @@ void terrain_part::readpart_plates(cr::height_pal* pal, ter::terrain_data_square
             v2.y = y + 1.0f;
             v2.z = map->geth(px*size + x, py*size + y + 1);
             
-            gridgeom->set_lin(li, v0, v1, col);
-            gridgeom->set_lin(li+1, v0, v2, col);
+            gridgeom->set_lin_n(li, v0, v1, col,norm);
+            gridgeom->set_lin_n(li+1, v0, v2, col,norm);
             li += 2;
         }
     }
@@ -276,7 +276,7 @@ void terrain_part::create_contour (ter::terrain_data_square* map, int px, int py
 {
     if (cgeom) delete cgeom;
     
-    cgeom = new cr::mesh_ux();
+    cgeom = new cr::mesh_ux(true, false, false);
     
     cr::vec3 v0, v1, v2, v3, v4, v5, newnorm, norm;
     cr::material col;
@@ -386,8 +386,8 @@ void terrain_part::create_contour (ter::terrain_data_square* map, int px, int py
                 cr::vec3 v5z(v5.x, v5.y, planez - dz);
                 
                 col.albedo = map->getc(px*size + x, py*size + y);
-                cgeom->add_tri(v5, v4,  v4z, col, newnorm);
-                cgeom->add_tri(v5, v4z, v5z, col, newnorm);
+                cgeom->add_tri_n(v5, v4,  v4z, col, newnorm);
+                cgeom->add_tri_n(v5, v4z, v5z, col, newnorm);
                 
                 //if (planez < 0.0f) {v4.z = 0.0f; v5.z=0.0f;}
                 cgeom->add_lin(v4, v5, col);
@@ -465,8 +465,8 @@ void terrain_part::create_contour (ter::terrain_data_square* map, int px, int py
                 cr::vec3 v5z(v5.x, v5.y, planez - dz);
                 
                 col.albedo = map->getc(px*size + x, py*size + y);
-                cgeom->add_tri(v5, v4,  v4z, col, newnorm);
-                cgeom->add_tri(v5, v4z, v5z, col, newnorm);
+                cgeom->add_tri_n(v5, v4,  v4z, col, newnorm);
+                cgeom->add_tri_n(v5, v4z, v5z, col, newnorm);
                 
                 //if (planez < 0.0f) {v4.z = 0.0f; v5.z=0.0f;}
                 cgeom->add_lin(v4, v5, col);

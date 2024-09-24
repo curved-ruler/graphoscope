@@ -3,6 +3,7 @@
 #include <apps/appbase/scene.hh>
 #include <crcc/crcc.hh>
 #include <gsgl/gsgl.hh>
+#include <gscc/gscc.hh>
 #include "plain_planet.hh"
 
 class nw_scene : public scene
@@ -30,6 +31,8 @@ class nw_scene : public scene
         float distUpdatePlanet;
         plain_planet* planet;
         
+        std::string renderengine;
+        gscc::r_pathtracer* renderer_pt;
         int objrender;
 
     private:

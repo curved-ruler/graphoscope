@@ -28,7 +28,8 @@ class cell
         cell(const std::string& file, float dx, float dy, float s);
         ~cell();
         
-        void draw(const cr::camera& c, cr::renderer* rrr) const;
+        void draw (const cr::camera& c, cr::renderer* rrr) const;
+        void drawcpu (const cr::camera& c, cr::renderer* rrr) const;
         
         float height (float xf, float yf, float tilesize);
 };
@@ -61,7 +62,9 @@ class plain_planet
         void get_surface (cr::vec3 test_in, cr::vec3& out);
         
         void updatecells (float x, float y);
+        
         void draw (const cr::camera& cam, cr::renderer* rrr) const;
+        void drawcpu (const cr::camera& cam, cr::renderer* rrr) const;
         
         bool newpos (cr::vec3 in, cr::vec3& newp);
 };
