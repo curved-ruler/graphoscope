@@ -177,8 +177,21 @@ void nw_scene::render ()
     {
     renderers[used_render]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
     renderers[used_render]->pre_render();
-    if (showplane) renderers[used_render]->render(*(cameras[used_cam]), pltr, planegpu);
     planet->draw(*(cameras[used_cam]), renderers[used_render]);
+    
+    if (showplane)
+    {
+        if (rmode.objtype == 2)
+        {
+            renderers[1]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+            renderers[1]->render(*(cameras[used_cam]), pltr, planegpu);
+        }
+        else
+        {
+            renderers[0]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+            renderers[0]->render(*(cameras[used_cam]), pltr, planegpu);
+        }
+    }
     
     if (used_render_2 >= 0)
     {
@@ -188,8 +201,19 @@ void nw_scene::render ()
         renderers[used_render_2]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
         glEnable(GL_POLYGON_OFFSET_FILL);
         glPolygonOffset(1.0f, 1.0f);
-        if (showplane) renderers[used_render_2]->render(*(cameras[used_cam]), pltr, planegpu);
+        
         planet->draw(*(cameras[used_cam]), renderers[used_render_2]);
+        
+        if (rmode.objtype == 2)
+        {
+            renderers[1]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+            renderers[1]->render(*(cameras[used_cam]), pltr, planegpu);
+        }
+        else
+        {
+            renderers[0]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+            renderers[0]->render(*(cameras[used_cam]), pltr, planegpu);
+        }
         glDisable(GL_POLYGON_OFFSET_FILL);
     }
     
