@@ -89,7 +89,7 @@ void r_pathtracer::render_pixel (int pix, const cr::camera& cam, const cr::mat4&
 {
     for (int i=0 ; i<thread_k ; ++i)
     {
-        int j = ipixel*path_n + thread_k*pix + i;
+        unsigned int j = ipixel*path_n + thread_k*pix + i;
         if (j >= perm.size())
         {
             //std::stringstream ss("");
@@ -117,12 +117,12 @@ void r_pathtracer::render_pixel (int pix, const cr::camera& cam, const cr::mat4&
         ray.I = cam.look + vx + vy;
         ray.I.normalize();
         
-        size_t trin = mesh.triangles.size() / cr::mesh_ux::tsize;
+        size_t trin = mesh.triangles.size() / mesh.tsize;
         for (unsigned int trii = 0 ; trii<trin ; ++trii)
         {
-            cr::vec3 a = modeltr * cr::vec3(mesh.triangles[trii*cr::mesh_ux::tsize],    mesh.triangles[trii*cr::mesh_ux::tsize+1],  mesh.triangles[trii*cr::mesh_ux::tsize+2]);
-            cr::vec3 b = modeltr * cr::vec3(mesh.triangles[trii*cr::mesh_ux::tsize+9],  mesh.triangles[trii*cr::mesh_ux::tsize+10], mesh.triangles[trii*cr::mesh_ux::tsize+11]);
-            cr::vec3 c = modeltr * cr::vec3(mesh.triangles[trii*cr::mesh_ux::tsize+18], mesh.triangles[trii*cr::mesh_ux::tsize+19], mesh.triangles[trii*cr::mesh_ux::tsize+20]);
+            cr::vec3 a = modeltr * cr::vec3(mesh.triangles[trii*mesh.tsize],    mesh.triangles[trii*mesh.tsize+1],  mesh.triangles[trii*mesh.tsize+2]);
+            cr::vec3 b = modeltr * cr::vec3(mesh.triangles[trii*mesh.tsize+9],  mesh.triangles[trii*mesh.tsize+10], mesh.triangles[trii*mesh.tsize+11]);
+            cr::vec3 c = modeltr * cr::vec3(mesh.triangles[trii*mesh.tsize+18], mesh.triangles[trii*mesh.tsize+19], mesh.triangles[trii*mesh.tsize+20]);
             
             cr::vec3 nplane = cr::cross(b-a,c-a);
             nplane.normalize();
@@ -145,9 +145,9 @@ void r_pathtracer::render_pixel (int pix, const cr::camera& cam, const cr::mat4&
             //nplane = modeltr * nplane;
             //nplane.normalize();
             
-            screen[(y*sw + x)*3]     = mesh.triangles[trii*cr::mesh_ux::tsize+3]*0.7f + mesh.triangles[trii*cr::mesh_ux::tsize+3]*cr::dot(nplane,cr::vec3(1,1,1).normal())*0.3f;
-            screen[(y*sw + x)*3 + 1] = mesh.triangles[trii*cr::mesh_ux::tsize+4]*0.7f + mesh.triangles[trii*cr::mesh_ux::tsize+4]*cr::dot(nplane,cr::vec3(1,1,1).normal())*0.3f;
-            screen[(y*sw + x)*3 + 2] = mesh.triangles[trii*cr::mesh_ux::tsize+5]*0.7f + mesh.triangles[trii*cr::mesh_ux::tsize+5]*cr::dot(nplane,cr::vec3(1,1,1).normal())*0.3f;
+            screen[(y*sw + x)*3]     = mesh.triangles[trii*mesh.tsize+3]*0.7f + mesh.triangles[trii*mesh.tsize+3]*cr::dot(nplane,cr::vec3(1,1,1).normal())*0.3f;
+            screen[(y*sw + x)*3 + 1] = mesh.triangles[trii*mesh.tsize+4]*0.7f + mesh.triangles[trii*mesh.tsize+4]*cr::dot(nplane,cr::vec3(1,1,1).normal())*0.3f;
+            screen[(y*sw + x)*3 + 2] = mesh.triangles[trii*mesh.tsize+5]*0.7f + mesh.triangles[trii*mesh.tsize+5]*cr::dot(nplane,cr::vec3(1,1,1).normal())*0.3f;
             depth[(y*sw + x)] = t;
         }
     }
@@ -164,7 +164,7 @@ void r_pathtracer::render (const cr::camera& cam, const cr::mat4& modeltr, const
     }
     
     ipixel += 1;
-    if (ipixel >= settings->frames) ipixel = 0;
+    if (ipixel >= uint32(settings->frames)) ipixel = 0;
     
     for (auto& t : render_threads)  t.join();
 }

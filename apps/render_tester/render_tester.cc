@@ -101,9 +101,10 @@ class simple_scene : public scene
             cr::vec3 b = {3, 0, 2};
             cr::vec3 c = {3, 2, 0};
             cr::vec3 d = {3, 2, 2};
-            m_cpu = new cr::mesh_ux(2, 4, 0);
-            m_cpu->set_tri(0, a, b, c, m);
-            m_cpu->set_tri(1, b, c, d, m);
+            cr::vec3 n = cr::cross(b-a, c-a);
+            m_cpu = new cr::mesh_ux(2, true, 4, false, 0, false);
+            m_cpu->set_tri_n(0, a, b, c, m, n);
+            m_cpu->set_tri_n(1, b, c, d, m, n);
             m_cpu->set_lin(0, a, b, m);
             m_cpu->set_lin(1, b, c, m);
             m_cpu->set_lin(2, c, d, m);
