@@ -7,11 +7,16 @@
 
 
 uv_sphere_planet::uv_sphere_planet (cr::scripter& _conf, float _r, int _part_size, int _part_k)
-  : N(_part_size)
-  , K(_part_k)
-  , radius(_r)
+  : planetMesh(true, true, true)
+  , contourMesh(true, true, true)
+  , debugMesh(false, false, false)
   , conf(_conf)
 {
+    N = _part_size;
+    K = _part_k;
+    radius = _r;
+    //conf = _conf;
+    
     th0 = cr::pi / 11.0f;
     
     hy = N*K;
@@ -121,13 +126,13 @@ void uv_sphere_planet::create_mesh ()
             norm = cross((v2-v0), (v1-v0));
             norm.normalize();
             
-            planetMesh.add_tri(v0, v2, v1, cr::material { pal->cols[ci] }, norm);
-            planetMesh.add_tri(v1, v2, v3, cr::material { pal->cols[ci] }, norm);
+            planetMesh.add_tri_n(v0, v2, v1, cr::material { pal->cols[ci] }, norm);
+            planetMesh.add_tri_n(v1, v2, v3, cr::material { pal->cols[ci] }, norm);
             
-            planetMesh.add_lin(v0, v1, cr::material { pal->cols[ci] });
-            planetMesh.add_lin(v0, v2, cr::material { pal->cols[ci] });
+            planetMesh.add_lin_n(v0, v1, cr::material { pal->cols[ci] }, norm);
+            planetMesh.add_lin_n(v0, v2, cr::material { pal->cols[ci] }, norm);
             
-            planetMesh.add_pnt(v0, cr::material { pal->cols[ci] });
+            planetMesh.add_pnt_n(v0, cr::material { pal->cols[ci] }, norm);
         }
     }
     
@@ -138,14 +143,14 @@ void uv_sphere_planet::create_contour ()
 {
     contourMesh.clear();
     
-    cr::vec3 v0, v1, v2, v4, v5, newnorm, norm, col;
+    cr::vec3 v0, v1, v2, v4, v5, norm, col;
     cr::vec3 zi(0.0f, 0.0f, 1.0f);
     
     //float dz = 0.2f * radius / 40.0f;
     float dz = 20.0f;
     conf.getvalue("contour.dz", dz, 10.0f);
     
-    int tas  = (int)cr::mesh_ux::tsize;
+    int tas  = (int)planetMesh.tsize;
     int tris = (int)planetMesh.triangles.size() / tas;
     
     for (float planez = radius+hmin ; planez <= radius+hmax ; planez += dz)
@@ -162,8 +167,8 @@ void uv_sphere_planet::create_contour ()
             v2.y = planetMesh.triangles[x*tas+19];
             v2.z = planetMesh.triangles[x*tas+20];
             
-            //norm = (v1-v0) % (v2-v0);
-            //norm.normalize();
+            norm = cr::cross((v1-v0), (v2-v0));
+            norm.normalize();
             
             //int z0 = cr::zero(planez-v0.z, 0.01f) ? 0 : ((planez > v0.z) ? -1 : 1 );
             //int z1 = cr::zero(planez-v1.z, 0.01f) ? 0 : ((planez > v1.z) ? -1 : 1 );
@@ -254,8 +259,7 @@ void uv_sphere_planet::create_contour ()
                     v4.setlength(radius);
                     v5.setlength(radius);
                 }
-                contourMesh.add_lin(v4, v5, cr::material { pal->cols[ci] });
-                //contourMesh.AddLine(v4, v5, cr::vec3{0,0,0});
+                contourMesh.add_lin_n(v4, v5, cr::material { pal->cols[ci] }, norm);
             }
         }
     }

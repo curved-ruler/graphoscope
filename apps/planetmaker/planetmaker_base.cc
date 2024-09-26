@@ -180,9 +180,12 @@ void planetmaker_base::render()
 {
     framebuf->use();
     
-    rmode.objtype = (objrender < 3) ? objrender : objrender-3;
-    used_render   = (rmode.objtype < 2) ? 0 : 1;
-    used_render_2 = (objrender < 3) ? -1 : 1;
+    int used_r[12] = {1,-1,  1,-1,  1,-1,  0,1,  0,1,  1,1};
+    int objt[12]   = {0,-1,  1,-1,  2,-1,  0,2,  1,2,  0,1};
+    
+    rmode.objtype = objt[objrender*2];
+    used_render   = used_r[objrender*2];
+    used_render_2 = used_r[objrender*2+1];
     
     float scale = 0.2f * cameras[used_cam]->far / planet->radius;
     
@@ -197,7 +200,7 @@ void planetmaker_base::render()
     
     if (used_render_2 >= 0)
     {
-        rmode.objtype = 2;
+        rmode.objtype = objt[objrender*2+1];
         //rmode.colourmode = x;
         //rmode.pp6size = 0.9f;
         renderers[used_render_2]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
@@ -208,8 +211,8 @@ void planetmaker_base::render()
     }
 
 #ifdef DEBUG_CRACK
-     renderers[1]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
-     renderers[1]->render(*(cameras[used_cam]), mtr * cr::scale_mat(planet->scale), planet->debugBuff);
+     renderers[0]->init_render(rmode.screen_w / rmode.pixel_size, rmode.screen_h / rmode.pixel_size);
+     renderers[0]->render(*(cameras[used_cam]), mtr * cr::scale_mat(planet->scale), planet->debugBuff);
 #endif
     
     framebuf->render();
