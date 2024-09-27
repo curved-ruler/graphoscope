@@ -44,6 +44,8 @@ enum pproc_mode
 struct rrr_buffers
 {
     public:
+        rrr_buffers();
+        
         bool tnorm, lnorm, pnorm;
         
         uint32 trin;

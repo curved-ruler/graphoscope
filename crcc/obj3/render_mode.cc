@@ -5,6 +5,13 @@
 
 namespace cr {
 
+rrr_buffers::rrr_buffers()
+{
+    pntn = 0;
+    linn = 0;
+    trin = 0;
+}
+
 render_mode::render_mode()
 {
     pp4size = 1.2f;
