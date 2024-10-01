@@ -5,6 +5,7 @@
 #include "integer_test.hh"
 #include "mu_test.hh"
 #include "text_test.hh"
+#include "szcript_test.hh"
  
 int main ()
 {
@@ -12,18 +13,30 @@ int main ()
     
     int succ=0, sum=0;
     run_gu_tests(sum, succ);
-    std::cout << "Tests: gu: " << succ << "/" << sum << std::endl;
+    std::cout << "Tests: gu:  " << succ << "/" << sum << std::endl;
     
     succ=0; sum=0;
     run_mu_tests(sum, succ);
-    std::cout << "Tests: mu: " << succ << "/" << sum << std::endl;
+    std::cout << "Tests: mu:  " << succ << "/" << sum << std::endl;
+    
+    // col
+    std::cout << "Tests: col: " << std::endl;
+    vec3 rgb(0.42, 0.98, 0.89);
+    vec3 hsv  = rgb2hsv(rgb); // should be (0.4733, 0.572, 0.98)
+    vec3 rgb2 = hsv2rgb(hsv);
+    std::cout << "hsv (" << hsv.x  << ", " << hsv.y  << ", " << hsv.z  << ")" << std::endl;
+    std::cout << "rgb2(" << rgb2.x << ", " << rgb2.y << ", " << rgb2.z << ")" << std::endl;
     
     //succ=0; sum=0;
-    //run_text_tests(a,b);
+    //run_text_tests(sum, succ);
     //std::cout << "Tests: text: " << succ << "/" << sum << std::endl;
     
     succ=0; sum=0;
-    std::cout << "integer --------------------" << std::endl;
+    run_szcript_tests(sum, succ);
+    std::cout << "Tests: szcript: " << succ << "/" << sum << std::endl;
+    
+    succ=0; sum=0;
+    std::cout << "\ninteger --------------------\n";
     run_integer_tests();
     
     return 1;

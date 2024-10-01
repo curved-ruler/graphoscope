@@ -1,0 +1,35 @@
+
+camera = {
+    pos   : [5, 5, 5],
+    look  : v3.normalize([-1, -1, -1]),
+    up    : v3.normalize([-1, -1,  2]),
+    near  : 0.02,
+    median: 8,
+    far   : 50,
+    fovy  : PI / 3,
+    aspect: 1,
+    
+    name  : "cam0"
+};
+
+sample_sphere = function (sphere_n)
+{
+    sphere = [sphere_n*3];
+    F = (i,n) => {
+      u = acos(2*random() - 1);
+      v = 2*PI*random();
+      return [sin(u) * cos(v),
+              sin(u) * sin(v),
+              cos(u)];
+    };
+
+    for (i=0 ; i<sphere_n ; ++i)
+    {
+        v = [0,0,0];
+        v = F(i, sphere_n);
+
+        sphere[i*3 + 0] = v[0];
+        sphere[i*3 + 1] = v[1];
+        sphere[i*3 + 2] = v[2];
+    }
+};

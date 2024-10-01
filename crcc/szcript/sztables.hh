@@ -2,32 +2,47 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "../base.hh"
 
 namespace sz {
 
-struct op
+namespace token_t {
+enum tt
 {
-    uint8 prec;
-    char  name[3];
+    UNKNOWN,
+    PARENTH, SQBRACKET, BLOCK,
+    KEYWORD, OP, STRING, CONST, VARIABLE
 };
+}
 
 struct token
 {
-    static const uint8 UNKNOWN = 0;
-    static const uint8 KEYWORD = 1;
-    static const uint8 PARENTH = 2;
-    static const uint8 BLOCK   = 3;
-    static const uint8 OP      = 4;
-    static const uint8 STRING  = 5;
-    static const uint8 NUMBER  = 6;
-    static const uint8 VARIAB  = 7;
-    
-    uint8       type;
+    token_t::tt type;
     std::string name;
 };
 
-char** keywords;
+struct keywords
+{
+    std::vector<std::string> table;
+    
+    keywords();
+    bool is_keyword() const;
+};
+
+struct op
+{
+    uint8 prec;
+    std::string name;
+};
+
+struct operators
+{
+    std::string opchars;
+    std::vector<op> table;
+    
+    operators();
+};
 
 }
