@@ -12,13 +12,17 @@ namespace token_t {
 enum tt
 {
     UNKNOWN,
+    COMMENT,
+    SEMICOLON,
     PARENTH, SQBRACKET, BLOCK,
-    KEYWORD, OP, STRING, CONST, VARIABLE
+    KEYWORD, OP, STRING, NUMBER, VARIABLE
 };
 }
 
 struct token
 {
+    token(token_t::tt t, std::string n);
+    token(token_t::tt t, char c);
     token_t::tt type;
     std::string name;
 };

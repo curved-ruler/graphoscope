@@ -3,6 +3,9 @@
 
 namespace sz {
 
+token::token(token_t::tt t, std::string n) : type(t), name(n) {}
+token::token(token_t::tt t, char c) : type(t) { std::string n; n+=c; name = n; }
+
 keywords::keywords()
 {
     table.push_back("return");
