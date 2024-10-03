@@ -121,6 +121,11 @@ int szparse::lexer ()
         }
     }
     
+    if (s.size() > 0)
+    {
+        tokens.push_back(token{collecting, s});
+    }
+    
     return 0;
 }
 
