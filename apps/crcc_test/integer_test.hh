@@ -148,6 +148,11 @@ int run_integer_tests ()
     std::cout << i002.str_dump() << " | MSB: " << i002.msb() << std::endl;
     cr::integer i003;
     std::cout << i003.str_dump() << " | MSB: " << i003.msb() << std::endl;
+    cr::integer i004("7");
+    std::cout << i004.str_dump() << " | MSB: " << i004.msb() << std::endl;
+    cr::integer i005;
+    i005 = 0;
+    std::cout << i005.str_dump() << " | MSB: " << i005.msb() << std::endl;
     i002 <<= 1;
     std::cout << "21123 << 1 = " << i002.str() << std::endl;
     

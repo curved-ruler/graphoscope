@@ -19,7 +19,7 @@ struct stringlines
     std::string line    (size_t i) const;
 };
 
-std::string show (const std::string& s);
+std::string show_whitespace (const std::string& s);
 std::string trim (const std::string& s);
 void split    (const std::string& s, std::vector<std::string>& tokens, std::string delimiter);
 bool starts_w (const std::string& s, const std::string& w);

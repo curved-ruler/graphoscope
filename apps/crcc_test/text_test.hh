@@ -42,10 +42,7 @@ int scripter_test () {
 
 void run_text_tests(int& sum, int& succ)
 {
-    int sumi=0, succi=0;
-    ++sumi;
-    succi += precomp_test();
-    //succi += scripter_test();
-    std::cout << "Tests: text: " << succi << "/" << sumi << std::endl;
-    sum += sumi; succ += succi;
+    ++sum;
+    succ += precomp_test();
+    //succ += scripter_test();
 }

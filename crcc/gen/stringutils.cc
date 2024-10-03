@@ -29,7 +29,7 @@ std::string stringlines::line (size_t i) const
 
 
 
-std::string show (const std::string& s)
+std::string show_whitespace (const std::string& s)
 {
     std::ostringstream ss;
     
