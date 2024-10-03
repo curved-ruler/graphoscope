@@ -18,6 +18,7 @@ enum tt
     KEYWORD, OP, STRING, NUMBER, VARIABLE
 };
 }
+std::string tokentype_str (token_t::tt tt);
 
 struct token
 {

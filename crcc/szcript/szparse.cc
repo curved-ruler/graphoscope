@@ -65,7 +65,7 @@ int szparse::lexer ()
             case token_t::OP:
                 if (ops.opchars.find(c) == std::string::npos)
                 {
-                    tokens.push_back(token{token_t::STRING, s});
+                    tokens.push_back(token{token_t::OP, s});
                     collecting = token_t::UNKNOWN;
                     s="";
                     i-=1;

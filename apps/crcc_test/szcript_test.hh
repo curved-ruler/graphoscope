@@ -7,6 +7,7 @@
 
 #include "../../crcc/szcript/szcript.hh"
 
+
 void sztest_1(int& sum, int& succ)
 {
     sz::szparse sz;
@@ -16,7 +17,10 @@ void sztest_1(int& sum, int& succ)
     
     for (size_t i=0 ; i<sz.tokens.size() ; ++i)
     {
-        std::cout << sz.tokens[i].name << "  ";
+        std::string s = sz::tokentype_str(sz.tokens[i].type);
+        std::cout << s << ": ";
+        for (size_t i = 0 ; i<9-s.size() ; ++i) { std::cout << " "; }
+        std::cout << sz.tokens[i].name << "\n";
     }
     std::cout << "\n\n";
     

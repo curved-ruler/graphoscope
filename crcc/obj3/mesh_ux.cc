@@ -13,6 +13,8 @@ mesh_ux::mesh_ux (bool tn, bool ln, bool pn)
     lsize = lnorm ? 2 * (3+3+3) : 2 * (3+3);
     pnorm = pn;
     psize = pnorm ? 1 * (3+3+3) : 1 * (3+3);
+    
+    clear();
 }
 mesh_ux::mesh_ux (uint32 t, bool tn, uint32 l, bool ln, uint32 p, bool pn)
 {
