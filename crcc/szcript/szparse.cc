@@ -46,7 +46,7 @@ int szparse::lexer ()
             if (c <= '9' && c >= '0') { collecting = token_t::NUMBER; s+=c; continue; }
             
             s+=c;
-            collecting = token_t::VARIABLE;
+            collecting = token_t::IDENTIFIER;
             continue;
         }
         
@@ -59,6 +59,36 @@ int szparse::lexer ()
                 
             case token_t::STRING:
                 if (c == '"') { tokens.push_back(token{token_t::STRING, s}); collecting = token_t::UNKNOWN; s=""; }
+                else if (c == '\\' && i<script.size()-1)
+                {
+                    switch (script[i+1])
+                    {
+                        case 'n':
+                            s += '\n';
+                            break;
+                            
+                        case 'r':
+                            s += '\r';
+                            break;
+                            
+                        case 't':
+                            s += '\t';
+                            break;
+                            
+                        case '\\':
+                            s += '\\';
+                            break;
+                            
+                        case '"':
+                            s += '"';
+                            break;
+                            
+                        default:
+                            s+=script[i+1];
+                            break;
+                    }
+                    i+=1;
+                }
                 else { s+=c; }
                 break;
                 
@@ -87,7 +117,7 @@ int szparse::lexer ()
                 }
                 break;
                 
-            case token_t::VARIABLE:
+            case token_t::IDENTIFIER:
                 if ( (ops.opchars.find(c) != std::string::npos) ||
                      (cr::isspace(c)) ||
                      (c == '"') || (c == '/') || ((c == ';')) ||
@@ -103,7 +133,7 @@ int szparse::lexer ()
                             break;
                         }
                     }
-                    if (found == -1) { tokens.push_back(token{token_t::VARIABLE, s}); }
+                    if (found == -1) { tokens.push_back(token{token_t::IDENTIFIER, s}); }
                     
                     collecting = token_t::UNKNOWN;
                     s="";
