@@ -18,6 +18,58 @@ void szparse::clear ()
     tokens.clear();
 }
 
+int szparse::add_name (std::string& s)
+{
+    int found = -1;
+    
+    for (size_t j=0 ; j<keys.table.size() ; ++j)
+    {
+        if (s == keys.table[j])
+        {
+            token t = token(token_t::KEYWORD, keys.table[j]);
+            t.id = j;
+            tokens.push_back(t);
+            found = j;
+            s = s.substr(keys.table[j].size());
+            break;
+        }
+    }
+        
+    if (found == -1) { tokens.push_back(token{token_t::IDENTIFIER, s}); }
+        
+    return 0;
+}
+
+int szparse::add_op (std::string& s)
+{
+    int found = -1;
+    
+    while (s.size() > 0)
+    {
+        found = -1;
+        for (size_t j=0 ; j<ops.table.size() ; ++j)
+        {
+            if (cr::starts_w(s, ops.table[j].name))
+            {
+                token t = token(token_t::OP, ops.table[j].name);
+                t.id = j;
+                tokens.push_back(t);
+                found = j;
+                s = s.substr(ops.table[j].name.size());
+                break;
+            }
+        }
+        
+        if (found == -1)
+        {
+            tokens.push_back(token{token_t::UNKNOWN, s});
+            return -1;
+        }
+    }
+    
+    return 0;
+}
+
 int szparse::lexer ()
 {
     std::string s;
@@ -95,7 +147,7 @@ int szparse::lexer ()
             case token_t::OP:
                 if (ops.opchars.find(c) == std::string::npos)
                 {
-                    tokens.push_back(token{token_t::OP, s});
+                    add_op(s);
                     collecting = token_t::UNKNOWN;
                     s="";
                     i-=1;
@@ -120,21 +172,10 @@ int szparse::lexer ()
             case token_t::IDENTIFIER:
                 if ( (ops.opchars.find(c) != std::string::npos) ||
                      (cr::isspace(c)) ||
-                     (c == '"') || (c == '/') || ((c == ';')) ||
+                     (c == '"') || ((c == ';')) ||
                      (c=='(' || c==')' || c=='[' || c==']' || c=='{' || c=='}') )
                 {
-                    int found = -1;
-                    for (size_t j=0 ; j<keys.table.size() ; ++j)
-                    {
-                        if (keys.table[j] == s)
-                        {
-                            tokens.push_back(token{token_t::KEYWORD, s});
-                            found = j;
-                            break;
-                        }
-                    }
-                    if (found == -1) { tokens.push_back(token{token_t::IDENTIFIER, s}); }
-                    
+                    add_name(s);
                     collecting = token_t::UNKNOWN;
                     s="";
                     i-=1;

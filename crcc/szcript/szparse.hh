@@ -27,7 +27,8 @@ class szparse {
         int lexer();
         
     private:
-        //int addtoken (std::string s);
+        int add_name (std::string& s);
+        int add_op   (std::string& s);
 
 };
 

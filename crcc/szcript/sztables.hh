@@ -15,7 +15,7 @@ enum tt
     COMMENT,
     SEMICOLON,
     PARENTH, SQBRACKET, BLOCK,
-    KEYWORD, OP, STRING, NUMBER, VARIABLE
+    KEYWORD, OP, STRING, NUMBER, IDENTIFIER
 };
 }
 std::string tokentype_str (token_t::tt tt);
@@ -24,8 +24,11 @@ struct token
 {
     token(token_t::tt t, std::string n);
     token(token_t::tt t, char c);
+    
+    
     token_t::tt type;
     std::string name;
+    int id;
 };
 
 struct keywords
@@ -33,7 +36,6 @@ struct keywords
     std::vector<std::string> table;
     
     keywords();
-    bool is_keyword() const;
 };
 
 struct op
