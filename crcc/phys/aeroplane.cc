@@ -54,7 +54,7 @@ void aeroplane::update_cam ()
     
     cam->pos  = pos + dir * (cam->focal);
     cam->look = pos - cam->pos;
-    cam->up   = -cross(right, cam->look); // ??? why the "-"
+    cam->up   = cross(right, cam->look);
     cam->constrain();
 }
 

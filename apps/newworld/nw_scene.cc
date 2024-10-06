@@ -24,11 +24,9 @@ nw_scene::nw_scene (cr::scripter& _conf) : scene(_conf)
     
     sysconf.getvalue("data.planet", p_s);
     std::cout << "Planet: " << p_s << std::endl;
-
-    std::string used_vehicle_str;
-    sysconf.getvalue("data.vehicle", used_vehicle_str);
-    //used_vehicle = std::stoi(used_vehicle_str);
-    used_vehicle = 0;
+    
+    sysconf.getvalue("data.vehicle", used_vehicle);
+    used_cam     = used_vehicle;
     
     distUpdatePlanet = 0.8f;
     maxDt = 2.0f;
@@ -46,8 +44,8 @@ nw_scene::nw_scene (cr::scripter& _conf) : scene(_conf)
     cameras.push_back(cam);
     
     cr::camera* camf = new cr::camera();
-    camf->near  = 0.001f;
-    camf->far   = 10.0f;
+    camf->near  = 0.01f;
+    camf->far   = 100.0f;
     camf->focal = 1.0f;
     camf->setfov(25.0f*cr::dtor);
     camf->persp_to_ortho();
@@ -78,8 +76,8 @@ nw_scene::nw_scene (cr::scripter& _conf) : scene(_conf)
     
     showplane = true;
     
-    plane = new cr::aeroplane(cameras[1], "");
     foot  = new cr::foot_cam(cameras[0]);
+    plane = new cr::aeroplane(cameras[1], "");
     
     plane->pos = cr::vec3(0.0f, 0.0f, 0.1f);
     //plane->updateCam();
