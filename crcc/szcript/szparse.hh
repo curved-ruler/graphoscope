@@ -17,6 +17,13 @@ class szparse {
         keywords keys;
         std::vector<token> tokens;
         
+        struct ps_elem
+        {
+            size_t toki; int typ;
+            ps_elem(size_t ti, int ty) : toki(ti), typ(ty) {}
+        };
+        std::vector<ps_elem> parenthesis_stack;
+        
     public:
         szparse();
         ~szparse();
@@ -27,8 +34,9 @@ class szparse {
         int lexer();
         
     private:
-        int add_name (std::string& s);
-        int add_op   (std::string& s);
+        int add_name (std::string& s, int line);
+        int add_op   (std::string& s, int line);
+        int add_par  (char c, int line);
 
 };
 

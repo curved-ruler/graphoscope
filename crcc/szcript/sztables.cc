@@ -13,6 +13,9 @@ keywords::keywords()
     table.push_back("for");
     table.push_back("do");
     table.push_back("while");
+    table.push_back("true");
+    table.push_back("false");
+    table.push_back("nil");
     
     std::sort(table.begin(), table.end(), [](const std::string& a, const std::string& b)
     {
@@ -74,8 +77,8 @@ operators::operators()
     });
 }
 
-token::token(token_t::tt t, std::string n) : type(t), name(n), id(-1) {}
-token::token(token_t::tt t, char c) : type(t) { std::string n=""; n+=c; name = n; id=-1; }
+token::token(token_t::tt t, std::string n, int l) : type(t), name(n), id(-1), line(l) {}
+token::token(token_t::tt t, char c, int l) : type(t), line(l) { std::string n=""; n+=c; name = n; id=-1; }
 
 std::string tokentype_str (token_t::tt tt)
 {

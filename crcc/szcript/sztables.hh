@@ -22,13 +22,14 @@ std::string tokentype_str (token_t::tt tt);
 
 struct token
 {
-    token(token_t::tt t, std::string n);
-    token(token_t::tt t, char c);
+    token(token_t::tt t, std::string n, int l);
+    token(token_t::tt t, char c, int l);
     
     
     token_t::tt type;
     std::string name;
     int id;
+    int line;
 };
 
 struct keywords

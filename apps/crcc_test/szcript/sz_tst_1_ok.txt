@@ -1,0 +1,20 @@
+sample_sphere = (sphere_n) =>
+{
+    sphere = [sphere_n*3];
+    F = (i,n)=>{
+      u = acos(2*random() - 1);
+      v = 2*PI*random();
+      return [sin(u) * cos(v),
+              sin(u) * sin(v),
+              cos(u)];
+    };
+
+    for (i=0 ; i<sphere_n ; ++i)
+    {
+        v = F(i, sphere_n);
+
+        sphere[i*3 + 0] = v[0];
+        //sphere[i*3 + 1] = v[1];
+        //sphere[i*3 + 2] = v[2];
+    }
+};
