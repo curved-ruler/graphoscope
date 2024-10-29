@@ -2,4 +2,5 @@
 #pragma once
 
 #include "sztables.hh"
-#include "szparse.hh"
+#include "szlexer.hh"
+#include "szparser.hh"

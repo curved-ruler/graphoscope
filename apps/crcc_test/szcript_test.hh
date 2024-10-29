@@ -10,7 +10,7 @@
 
 void sztest_1(int& sum, int& succ)
 {
-    sz::szparse sz;
+    sz::szlexer sz;
     std::string szcr = cr::read_file("../../apps/crcc_test/szcript/sz_tst_1_ok.txt");
     sz.add(szcr);
     
@@ -26,7 +26,7 @@ void sztest_1(int& sum, int& succ)
     
     for (size_t i=0 ; i<sz.tokens.size() ; ++i)
     {
-        std::cout << i << "   line: ";
+        std::cout << "line: ";
         std::cout << sz.tokens[i].line << "   ";
         std::string s = sz::tokentype_str(sz.tokens[i].type);
         std::cout << s << ": ";
@@ -41,7 +41,20 @@ void sztest_1(int& sum, int& succ)
     sum+=1; succ+=1;
 }
 
+void sztest_2(int& sum, int& succ)
+{
+    std::string szcr = "a = 2*3 + ((4+5)/((6))) + 1";
+    std::cout << "parse: " << szcr << std::endl;
+    
+    sz::szparser sz(szcr);
+    sz.lexer();
+    sz.expression(0,sz.lex.tokens.size(),0);
+    std::cout << std::endl;
+    
+    sum+=1; succ+=1;
+}
+
 void run_szcript_tests(int& sum, int& succ)
 {
-    sztest_1(sum, succ);
+    sztest_2(sum, succ);
 }
