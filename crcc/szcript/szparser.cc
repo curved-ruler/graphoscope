@@ -80,9 +80,54 @@ int szparser::expression(size_t begin, size_t end, int level)
         expression(begin+1,end-1,level+1);
         return 3;
     }
+    else if (begin+1 < end && lex.tokens[begin].type == token_t::IDENTIFIER && lex.tokens[begin+1].type == token_t::PARENTH && lex.tokens[end-1].type == token_t::PARENTH)
+    {
+        std::cout << lex.tokens[begin].name << " ( ";
+        expression_list(begin+2,end-1,level+1);
+        std::cout << " )   ";
+        return 3;
+    }
         
     
     return -1;
+}
+
+int szparser::expression_list(size_t begin, size_t end, int level)
+{
+    if (end < begin+1)
+    {
+        return 0;
+    }
+    
+    //std::cout << "L: " << level << ": ";
+    //for (size_t i=begin ; i<end ; ++i) std::cout << lex.tokens[i].name << "   ";
+    //std::cout << std::endl;
+    
+    size_t i   = begin;
+    size_t beg = begin;
+    while (i<end)
+    {
+        if (lex.tokens[i].type == token_t::PARENTH)
+        {
+            //expression(i+1,lex.tokens[i].id, level+1);
+            i = lex.tokens[i].id + 1;
+        }
+        else if (lex.tokens[i].type == token_t::OP && lex.tokens[i].name == ",")
+        {
+            expression(beg,i,level);
+            std::cout << ",   ";
+            beg = i+1;
+            i+=1;
+        }
+        else
+        {
+            i+=1;
+        }
+    }
+    
+    expression(beg,end,level);
+    
+    return 0;
 }
 
 }

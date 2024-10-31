@@ -31,7 +31,8 @@ class szparser {
         
         int lexer();
         
-        int expression(size_t begin, size_t end, int level);
+        int expression     (size_t begin, size_t end, int level);
+        int expression_list(size_t begin, size_t end, int level);
     
     private:
         void delete_ast(ast_elem*& ast);
