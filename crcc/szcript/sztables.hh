@@ -42,6 +42,7 @@ struct keywords
 struct op
 {
     uint8 prec;
+    uint8 arity;
     std::string name;
 };
 
@@ -51,6 +52,14 @@ struct operators
     std::vector<op> table;
     
     operators();
+};
+
+struct ast_elem
+{
+    int rule;
+    std::string name;
+    
+    std::vector<ast_elem*> children;
 };
 
 }

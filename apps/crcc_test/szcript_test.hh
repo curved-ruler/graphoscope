@@ -43,12 +43,14 @@ void sztest_1(int& sum, int& succ)
 
 void sztest_2(int& sum, int& succ)
 {
-    std::string szcr = "a = 2*3 + ((4+5)/((6))) + 1";
+    std::string szcr = "a = func((4+5)/6,b,sin(7)) + 1";
     std::cout << "parse: " << szcr << std::endl;
     
     sz::szparser sz(szcr);
     sz.lexer();
-    sz.expression(0,sz.lex.tokens.size(),0);
+    sz.expression(sz.AST, 0,sz.lex.tokens.size(),0);
+    std::string pr = "";
+    sz.print_ast(sz.AST, pr, false);
     std::cout << std::endl;
     
     sum+=1; succ+=1;

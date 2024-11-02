@@ -8,13 +8,6 @@
 
 namespace sz {
 
-struct ast_elem {
-    int rule;
-    std::string rule_str;
-    
-    std::vector<ast_elem*> children;
-};
-
 class szparser {
 
     public:
@@ -31,8 +24,10 @@ class szparser {
         
         int lexer();
         
-        int expression     (size_t begin, size_t end, int level);
-        int expression_list(size_t begin, size_t end, int level);
+        void print_ast(ast_elem* e, std::string prefix, bool left);
+        
+        int expression     (ast_elem*& e, size_t begin, size_t end, int level);
+        int expression_list(ast_elem*& e, size_t begin, size_t end, int level);
     
     private:
         void delete_ast(ast_elem*& ast);

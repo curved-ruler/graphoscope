@@ -32,7 +32,7 @@ MDOELT_OUTPUT="$BASE_PATH/dist/bin-l/model-tester"
 
 
 
-COMPILER_OPTIONS="-std=c++17 -Wall -Wextra -D REENTRANT -D PLATFORM_LINUX"
+COMPILER_OPTIONS="-std=c++20 -Wall -Wextra -D REENTRANT -D PLATFORM_LINUX"
 #COMPILER_OPTIONS="-std=c++11 -Wall -Wextra -D REENTRANT -D PLATFORM_LINUX -O3"
 #DEBUG_OPTIONS="-fsanitize=address -fsanitize=pointer-compare -fsanitize=leak -fsanitize=undefined"
 DEBUG_OPTIONS=""

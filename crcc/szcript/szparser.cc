@@ -9,6 +9,7 @@ szparser::szparser (const std::string& src)
 {
     source = src;
     AST = new ast_elem;
+    AST->name = "program";
 }
 szparser::~szparser ()
 {
@@ -19,6 +20,15 @@ void szparser::delete_ast(ast_elem*& aste)
     for (size_t i=0 ; i<aste->children.size() ; ++i) delete_ast(aste->children[i]);
     delete aste;
 }
+void szparser::print_ast(ast_elem* e, std::string prefix, bool left)
+{
+    std::cout << prefix + (left ? "├─ " : "└─ " ) << e->name << "\n";
+    
+    for (size_t i=0 ; i<e->children.size() ; ++i)
+    {
+        print_ast(e->children[i], prefix + (left ? std::string("|  ") : std::string("   ")), i != e->children.size()-1 );
+    }
+}
 
 int szparser::lexer()
 {
@@ -27,11 +37,12 @@ int szparser::lexer()
     return status;
 }
 
-int szparser::expression(size_t begin, size_t end, int level)
+int szparser::expression(ast_elem*& aste, size_t begin, size_t end, int level)
 {
     if (end == begin+1)
     {
-        std::cout << lex.tokens[begin].name << "   ";
+        aste->name = lex.tokens[begin].name;
+        //std::cout << lex.tokens[begin].name << "   ";
         return 1;
     }
     if (end < begin+1)
@@ -70,21 +81,29 @@ int szparser::expression(size_t begin, size_t end, int level)
     
     if (rootop != -1)
     {
-        std::cout << lex.ops.table[lex.tokens[rootop].id].name << "   ";
-        expression(begin,rootop,level);
-        expression(rootop+1,end,level);
+        //std::cout << lex.ops.table[lex.tokens[rootop].id].name << "   ";
+        
+        aste->name = lex.ops.table[lex.tokens[rootop].id].name;
+        ast_elem* left  = new ast_elem;
+        ast_elem* right = new ast_elem;
+        aste->children.push_back(left);
+        aste->children.push_back(right);
+        expression(left, begin,rootop,level+1);
+        expression(right, rootop+1,end,level+1);
         return 2;
     }
     else if (lex.tokens[begin].type == token_t::PARENTH && lex.tokens[end-1].type == token_t::PARENTH)
     {
-        expression(begin+1,end-1,level+1);
+        expression(aste, begin+1,end-1,level);
         return 3;
     }
     else if (begin+1 < end && lex.tokens[begin].type == token_t::IDENTIFIER && lex.tokens[begin+1].type == token_t::PARENTH && lex.tokens[end-1].type == token_t::PARENTH)
     {
-        std::cout << lex.tokens[begin].name << " ( ";
-        expression_list(begin+2,end-1,level+1);
-        std::cout << " )   ";
+        aste->name = lex.tokens[begin].name;
+        
+        //std::cout << lex.tokens[begin].name << " ( ";
+        expression_list(aste, begin+2,end-1,level+1);
+        //std::cout << " )   ";
         return 3;
     }
         
@@ -92,7 +111,7 @@ int szparser::expression(size_t begin, size_t end, int level)
     return -1;
 }
 
-int szparser::expression_list(size_t begin, size_t end, int level)
+int szparser::expression_list(ast_elem*& aste, size_t begin, size_t end, int level)
 {
     if (end < begin+1)
     {
@@ -114,8 +133,12 @@ int szparser::expression_list(size_t begin, size_t end, int level)
         }
         else if (lex.tokens[i].type == token_t::OP && lex.tokens[i].name == ",")
         {
-            expression(beg,i,level);
-            std::cout << ",   ";
+            ast_elem* newch = new ast_elem;
+            newch->name = lex.tokens[i].name;
+            aste->children.push_back(newch);
+            
+            expression(newch, beg,i,level+1);
+            //std::cout << ",   ";
             beg = i+1;
             i+=1;
         }
@@ -125,7 +148,10 @@ int szparser::expression_list(size_t begin, size_t end, int level)
         }
     }
     
-    expression(beg,end,level);
+    ast_elem* newch = new ast_elem;
+    newch->name = lex.tokens[i].name;
+    aste->children.push_back(newch);
+    expression(newch, beg,end,level+1);
     
     return 0;
 }

@@ -39,26 +39,27 @@ operators::operators()
 {
     opchars = "+-*/%:=<>!~^|&.,";
     
-    table.push_back( op{2,  "."} );
-    table.push_back( op{3,  "!"} );
-    table.push_back( op{3,  "~"} );
-    table.push_back( op{5,  "*"} );
-    table.push_back( op{5,  "/"} );
-    table.push_back( op{5,  "&"} );
-    table.push_back( op{5,  "%"} );
-    table.push_back( op{6,  "+"} );
-    table.push_back( op{6,  "-"} );
-    table.push_back( op{6,  "^"} );
-    table.push_back( op{9,  "<"} );
-    table.push_back( op{9,  ">"} );
-    table.push_back( op{9,  "<="} );
-    table.push_back( op{9,  ">="} );
-    table.push_back( op{10, "=="} );
-    table.push_back( op{10, "!="} );
-    table.push_back( op{14, "&&"} );
-    table.push_back( op{15, "||"} );
-    table.push_back( op{16, "="} );
-    table.push_back( op{17, ","} );
+    table.push_back( op{ .prec{2},  .arity{2},  .name{"."} } );
+    table.push_back( op{ .prec{3},  .arity{1},  .name{"!"} } );
+    table.push_back( op{ .prec{3},  .arity{1},  .name{"~"} } );
+    table.push_back( op{ .prec{3},  .arity{1},  .name{"-"} } );
+    table.push_back( op{ .prec{5},  .arity{2},  .name{"*"} } );
+    table.push_back( op{ .prec{5},  .arity{2},  .name{"/"} } );
+    table.push_back( op{ .prec{5},  .arity{2},  .name{"&"} } );
+    table.push_back( op{ .prec{5},  .arity{2},  .name{"%"} } );
+    table.push_back( op{ .prec{6},  .arity{2},  .name{"+"} } );
+    table.push_back( op{ .prec{6},  .arity{2},  .name{"-"} } );
+    table.push_back( op{ .prec{6},  .arity{2},  .name{"^"} } );
+    table.push_back( op{ .prec{9},  .arity{2},  .name{"<"} } );
+    table.push_back( op{ .prec{9},  .arity{2},  .name{">"} } );
+    table.push_back( op{ .prec{9},  .arity{2},  .name{"<="} } );
+    table.push_back( op{ .prec{9},  .arity{2},  .name{">="} } );
+    table.push_back( op{ .prec{10}, .arity{2},  .name{"=="} } );
+    table.push_back( op{ .prec{10}, .arity{2},  .name{"!="} } );
+    table.push_back( op{ .prec{14}, .arity{2},  .name{"&&"} } );
+    table.push_back( op{ .prec{15}, .arity{2},  .name{"||"} } );
+    table.push_back( op{ .prec{16}, .arity{2},  .name{"="} } );
+    table.push_back( op{ .prec{17}, .arity{2},  .name{","} } );
     
     std::sort(table.begin(), table.end(), [](const op& a, const op& b)
     {
