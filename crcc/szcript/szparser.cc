@@ -20,13 +20,13 @@ void szparser::delete_ast(ast_elem*& aste)
     for (size_t i=0 ; i<aste->children.size() ; ++i) delete_ast(aste->children[i]);
     delete aste;
 }
-void szparser::print_ast(ast_elem* e, std::string prefix, bool left)
+void szparser::print_ast(const ast_elem* e, const std::string& prefix, bool left)
 {
     std::cout << prefix + (left ? "├─ " : "└─ " ) << e->name << "\n";
     
     for (size_t i=0 ; i<e->children.size() ; ++i)
     {
-        print_ast(e->children[i], prefix + (left ? std::string("|  ") : std::string("   ")), i != e->children.size()-1 );
+        print_ast(e->children[i], prefix + (left ? std::string("│  ") : std::string("   ")), i != e->children.size()-1 );
     }
 }
 
@@ -35,6 +35,32 @@ int szparser::lexer()
     lex.add(source);
     status = lex.lexer();
     return status;
+}
+
+int szparser::parse_expr(size_t begin, size_t end)
+{
+    size_t m1 = -1;
+    for (size_t j=0 ; j<lex.ops.table.size() ; ++j)
+    {
+        if (lex.ops.table[j].name == "-" && lex.ops.table[j].arity == 1)
+        {
+            m1 = j;
+        }
+    }
+    
+    for (size_t i = begin ; i<end ; ++i)
+    {
+        if (lex.tokens[i].name == "-")
+        {
+            if (i == begin || lex.tokens[i-1].type == token_t::OP ||
+                lex.tokens[i-1].name == "(" || lex.tokens[i-1].name == "[" || lex.tokens[i-1].name == "{")
+            {
+                lex.tokens[i].id = m1;
+            }
+        }
+    }
+    
+    return expression(AST,begin,end,0);
 }
 
 int szparser::expression(ast_elem*& aste, size_t begin, size_t end, int level)
@@ -83,13 +109,28 @@ int szparser::expression(ast_elem*& aste, size_t begin, size_t end, int level)
     {
         //std::cout << lex.ops.table[lex.tokens[rootop].id].name << "   ";
         
-        aste->name = lex.ops.table[lex.tokens[rootop].id].name;
-        ast_elem* left  = new ast_elem;
-        ast_elem* right = new ast_elem;
-        aste->children.push_back(left);
-        aste->children.push_back(right);
-        expression(left, begin,rootop,level+1);
-        expression(right, rootop+1,end,level+1);
+        if (lex.ops.table[lex.tokens[rootop].id].arity == 1)
+        {
+            aste->name = lex.ops.table[lex.tokens[rootop].id].name;
+            ast_elem* right = new ast_elem;
+            aste->children.push_back(right);
+            expression(right, rootop+1,end,level+1);
+            
+            if (size_t(rootop) >= begin+1)
+            {
+                std::cout << "ERROR" << std::endl;
+            }
+        }
+        else
+        {
+            aste->name = lex.ops.table[lex.tokens[rootop].id].name;
+            ast_elem* left  = new ast_elem;
+            ast_elem* right = new ast_elem;
+            aste->children.push_back(left);
+            aste->children.push_back(right);
+            expression(left, begin,rootop,level+1);
+            expression(right, rootop+1,end,level+1);
+        }
         return 2;
     }
     else if (lex.tokens[begin].type == token_t::PARENTH && lex.tokens[end-1].type == token_t::PARENTH)

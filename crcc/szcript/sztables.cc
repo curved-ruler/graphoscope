@@ -70,7 +70,7 @@ operators::operators()
                 if (a.name[i] == b.name[i]) continue;
                 return a.name[i] > b.name[i];
             }
-            return true;
+            return a.arity > b.arity;
         }
         else
         {

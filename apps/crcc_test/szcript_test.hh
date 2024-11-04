@@ -41,14 +41,13 @@ void sztest_1(int& sum, int& succ)
     sum+=1; succ+=1;
 }
 
-void sztest_2(int& sum, int& succ)
+void sztest_2(int& sum, int& succ, const std::string& szcr)
 {
-    std::string szcr = "a = func((4+5)/6,b,sin(7)) + 1";
     std::cout << "parse: " << szcr << std::endl;
     
     sz::szparser sz(szcr);
     sz.lexer();
-    sz.expression(sz.AST, 0,sz.lex.tokens.size(),0);
+    sz.parse_expr(0,sz.lex.tokens.size());
     std::string pr = "";
     sz.print_ast(sz.AST, pr, false);
     std::cout << std::endl;
@@ -58,5 +57,6 @@ void sztest_2(int& sum, int& succ)
 
 void run_szcript_tests(int& sum, int& succ)
 {
-    sztest_2(sum, succ);
+    sztest_2(sum, succ, "a = func((4-5)/6,b,sin(7)) * 1");
+    sztest_2(sum, succ, "a = 1 * -2");
 }
