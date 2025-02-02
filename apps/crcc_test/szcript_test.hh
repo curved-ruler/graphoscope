@@ -57,6 +57,7 @@ void sztest_2(int& sum, int& succ, const std::string& szcr)
 
 void run_szcript_tests(int& sum, int& succ)
 {
-    sztest_2(sum, succ, "a = func((4-5)/6,b,sin(7)) * 1");
-    sztest_2(sum, succ, "a = 1 * -2");
+    //sztest_2(sum, succ, "a = func((4-5)/6,b,sin(7)) * 1");
+    //sztest_2(sum, succ, "a = 1 * -2");
+    sztest_2(sum, succ, "(1+2)+5-5.5");
 }

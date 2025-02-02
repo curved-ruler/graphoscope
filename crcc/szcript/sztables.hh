@@ -59,6 +59,9 @@ struct ast_elem
     int rule;
     std::string name;
     
+    int    type;
+    size_t value;
+    
     std::vector<ast_elem*> children;
 };
 

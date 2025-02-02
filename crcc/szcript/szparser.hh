@@ -16,6 +16,9 @@ class szparser {
         
         int status;
         
+        std::vector<float> floats;
+        std::vector<int>   ints;
+        
         ast_elem* AST;
         
     public:
@@ -33,6 +36,11 @@ class szparser {
         
         int expression     (ast_elem*& e, size_t begin, size_t end, int level);
         int expression_list(ast_elem*& e, size_t begin, size_t end, int level);
+        
+        int eval(ast_elem*& e);
+        
+        int   getival (const ast_elem* e);
+        float getfval (const ast_elem* e);
 };
 
 }

@@ -37,8 +37,6 @@ keywords::keywords()
 
 operators::operators()
 {
-    opchars = "+-*/%:=<>!~^|&.,";
-    
     table.push_back( op{ .prec{2},  .arity{2},  .name{"."} } );
     table.push_back( op{ .prec{3},  .arity{1},  .name{"!"} } );
     table.push_back( op{ .prec{3},  .arity{1},  .name{"~"} } );
@@ -77,6 +75,8 @@ operators::operators()
             return a.name.size() > b.name.size();
         }
     });
+    
+    for (size_t i=0 ; i<table.size() ; ++i) opchars += table[i].name;
 }
 
 token::token(token_t::tt t, std::string n, int l) : type(t), name(n), id(-1), line(l) {}

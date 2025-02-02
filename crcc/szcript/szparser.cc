@@ -22,7 +22,8 @@ void szparser::delete_ast(ast_elem*& aste)
 }
 void szparser::print_ast(const ast_elem* e, const std::string& prefix, bool left)
 {
-    std::cout << prefix + (left ? "├─ " : "└─ " ) << e->name << "\n";
+    std::cout << prefix + (left ? "├─ " : "└─ " ) << e->name;
+    std::cout << (e->type == 0 ? "  float(" : "  int(") << (e->type == 0 ? floats[e->value] : ints[e->value]) <<")\n";
     
     for (size_t i=0 ; i<e->children.size() ; ++i)
     {
@@ -60,7 +61,14 @@ int szparser::parse_expr(size_t begin, size_t end)
         }
     }
     
-    return expression(AST,begin,end,0);
+    status = expression(AST,begin,end,0);
+    
+    floats.clear();
+    ints.clear();
+    
+    status = eval(AST);
+    
+    return status;
 }
 
 int szparser::expression(ast_elem*& aste, size_t begin, size_t end, int level)
@@ -196,5 +204,83 @@ int szparser::expression_list(ast_elem*& aste, size_t begin, size_t end, int lev
     
     return 0;
 }
+
+int szparser::eval(ast_elem*& e)
+{
+    if (e->name == "+")
+    {
+        eval(e->children[0]);
+        eval(e->children[1]);
+        
+        if (e->children[0]->type == 0 || e->children[1]->type == 0)
+        {
+            e->type = 0;
+            float v = getfval(e->children[0]) + getfval(e->children[1]);
+            floats.push_back(v);
+            e->value = floats.size()-1;
+        }
+        else
+        {
+            e->type = 1;
+            int v = getival(e->children[0]) + getival(e->children[1]);
+            ints.push_back(v);
+            e->value = ints.size()-1;
+        }
+    }
+    else if (e->name == "-")
+    {
+        eval(e->children[0]);
+        eval(e->children[1]);
+        
+        if (e->children[0]->type == 0 || e->children[1]->type == 0)
+        {
+            e->type = 0;
+            float v = getfval(e->children[0]) - getfval(e->children[1]);
+            floats.push_back(v);
+            e->value = floats.size()-1;
+        }
+        else
+        {
+            e->type = 1;
+            int v = getival(e->children[0]) - getival(e->children[1]);
+            ints.push_back(v);
+            e->value = ints.size()-1;
+        }
+    }
+    
+    else if (e->name.find('.') != std::string::npos)
+    {
+        e->type = 0;
+        float v = std::stof(e->name);
+        floats.push_back(v);
+        e->value = floats.size()-1;
+    }
+    else
+    {
+        e->type = 1;
+        int v = std::stoi(e->name);
+        ints.push_back(v);
+        e->value = ints.size()-1;
+    }
+    
+    return 0;
+}
+
+int szparser::getival (const ast_elem* e)
+{
+    if      (e->type == 0) return int(floats[e->value]);
+    else if (e->type == 1) return ints[e->value];
+    
+    return 0;
+}
+float szparser::getfval (const ast_elem* e)
+{
+    if      (e->type == 0) return floats[e->value];
+    else if (e->type == 1) return float(ints[e->value]);
+    
+    return 0;
+}
+
+
 
 }
