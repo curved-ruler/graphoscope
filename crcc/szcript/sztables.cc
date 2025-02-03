@@ -15,7 +15,8 @@ keywords::keywords()
     table.push_back("while");
     table.push_back("true");
     table.push_back("false");
-    table.push_back("nil");
+    table.push_back("null");
+    table.push_back("nan");
     
     std::sort(table.begin(), table.end(), [](const std::string& a, const std::string& b)
     {
@@ -37,27 +38,27 @@ keywords::keywords()
 
 operators::operators()
 {
-    table.push_back( op{ .prec{2},  .arity{2},  .name{"."} } );
-    table.push_back( op{ .prec{3},  .arity{1},  .name{"!"} } );
-    table.push_back( op{ .prec{3},  .arity{1},  .name{"~"} } );
-    table.push_back( op{ .prec{3},  .arity{1},  .name{"-"} } );
-    table.push_back( op{ .prec{5},  .arity{2},  .name{"*"} } );
-    table.push_back( op{ .prec{5},  .arity{2},  .name{"/"} } );
-    table.push_back( op{ .prec{5},  .arity{2},  .name{"&"} } );
-    table.push_back( op{ .prec{5},  .arity{2},  .name{"%"} } );
-    table.push_back( op{ .prec{6},  .arity{2},  .name{"+"} } );
-    table.push_back( op{ .prec{6},  .arity{2},  .name{"-"} } );
-    table.push_back( op{ .prec{6},  .arity{2},  .name{"^"} } );
-    table.push_back( op{ .prec{9},  .arity{2},  .name{"<"} } );
-    table.push_back( op{ .prec{9},  .arity{2},  .name{">"} } );
-    table.push_back( op{ .prec{9},  .arity{2},  .name{"<="} } );
-    table.push_back( op{ .prec{9},  .arity{2},  .name{">="} } );
-    table.push_back( op{ .prec{10}, .arity{2},  .name{"=="} } );
-    table.push_back( op{ .prec{10}, .arity{2},  .name{"!="} } );
-    table.push_back( op{ .prec{14}, .arity{2},  .name{"&&"} } );
-    table.push_back( op{ .prec{15}, .arity{2},  .name{"||"} } );
-    table.push_back( op{ .prec{16}, .arity{2},  .name{"="} } );
-    table.push_back( op{ .prec{17}, .arity{2},  .name{","} } );
+    table.push_back( op{ .prec{2},  .arity{2},  .assoc{true},   .name{"."} } );
+    table.push_back( op{ .prec{3},  .arity{1},  .assoc{false},  .name{"!"} } );
+    table.push_back( op{ .prec{3},  .arity{1},  .assoc{false},  .name{"~"} } );
+    table.push_back( op{ .prec{3},  .arity{1},  .assoc{false},  .name{"-"} } );
+    table.push_back( op{ .prec{5},  .arity{2},  .assoc{true},   .name{"*"} } );
+    table.push_back( op{ .prec{5},  .arity{2},  .assoc{true},   .name{"/"} } );
+    table.push_back( op{ .prec{5},  .arity{2},  .assoc{true},   .name{"&"} } );
+    table.push_back( op{ .prec{5},  .arity{2},  .assoc{true},   .name{"%"} } );
+    table.push_back( op{ .prec{6},  .arity{2},  .assoc{true},   .name{"+"} } );
+    table.push_back( op{ .prec{6},  .arity{2},  .assoc{true},   .name{"-"} } );
+    table.push_back( op{ .prec{6},  .arity{2},  .assoc{true},   .name{"^"} } );
+    table.push_back( op{ .prec{9},  .arity{2},  .assoc{true},   .name{"<"} } );
+    table.push_back( op{ .prec{9},  .arity{2},  .assoc{true},   .name{">"} } );
+    table.push_back( op{ .prec{9},  .arity{2},  .assoc{true},   .name{"<="} } );
+    table.push_back( op{ .prec{9},  .arity{2},  .assoc{true},   .name{">="} } );
+    table.push_back( op{ .prec{10}, .arity{2},  .assoc{true},   .name{"=="} } );
+    table.push_back( op{ .prec{10}, .arity{2},  .assoc{true},   .name{"!="} } );
+    table.push_back( op{ .prec{14}, .arity{2},  .assoc{true},   .name{"&&"} } );
+    table.push_back( op{ .prec{15}, .arity{2},  .assoc{true},   .name{"||"} } );
+    table.push_back( op{ .prec{16}, .arity{2},  .assoc{false},  .name{"="} } );
+    table.push_back( op{ .prec{17}, .arity{2},  .assoc{false},  .name{","} } );
     
     std::sort(table.begin(), table.end(), [](const op& a, const op& b)
     {

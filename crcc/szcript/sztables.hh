@@ -18,6 +18,13 @@ enum tt
     KEYWORD, OP, STRING, NUMBER, IDENTIFIER
 };
 }
+namespace types {
+enum typ
+{
+    INT, FLOAT
+};
+}
+
 std::string tokentype_str (token_t::tt tt);
 
 struct token
@@ -43,6 +50,7 @@ struct op
 {
     uint8 prec;
     uint8 arity;
+    bool  assoc; // true: +-,  false: =
     std::string name;
 };
 
@@ -59,7 +67,7 @@ struct ast_elem
     int rule;
     std::string name;
     
-    int    type;
+    types::typ type;
     size_t value;
     
     std::vector<ast_elem*> children;

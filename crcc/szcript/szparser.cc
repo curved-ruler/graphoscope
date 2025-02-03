@@ -23,7 +23,7 @@ void szparser::delete_ast(ast_elem*& aste)
 void szparser::print_ast(const ast_elem* e, const std::string& prefix, bool left)
 {
     std::cout << prefix + (left ? "├─ " : "└─ " ) << e->name;
-    std::cout << (e->type == 0 ? "  float(" : "  int(") << (e->type == 0 ? floats[e->value] : ints[e->value]) <<")\n";
+    std::cout << (e->type == types::FLOAT ? "  float(" : "  int(") << (e->type == types::FLOAT ? floats[e->value] : ints[e->value]) <<")\n";
     
     for (size_t i=0 ; i<e->children.size() ; ++i)
     {
@@ -90,6 +90,7 @@ int szparser::expression(ast_elem*& aste, size_t begin, size_t end, int level)
     
     int rootop     = -1;
     uint8 rootprec = 0;
+    bool  rootassoc = true;
     size_t i = begin;
     while (i<end)
     {
@@ -100,10 +101,11 @@ int szparser::expression(ast_elem*& aste, size_t begin, size_t end, int level)
         }
         else if (lex.tokens[i].type == token_t::OP)
         {
-            if (lex.ops.table[lex.tokens[i].id].prec > rootprec)
+            if (rootassoc ? lex.ops.table[lex.tokens[i].id].prec >= rootprec : lex.ops.table[lex.tokens[i].id].prec > rootprec)
             {
-                rootop = i;
-                rootprec = lex.ops.table[lex.tokens[i].id].prec;
+                rootop    = i;
+                rootprec  = lex.ops.table[lex.tokens[i].id].prec;
+                rootassoc = lex.ops.table[lex.tokens[i].id].assoc;
             }
             i+=1;
         }
@@ -212,16 +214,16 @@ int szparser::eval(ast_elem*& e)
         eval(e->children[0]);
         eval(e->children[1]);
         
-        if (e->children[0]->type == 0 || e->children[1]->type == 0)
+        if (e->children[0]->type == types::FLOAT || e->children[1]->type == types::FLOAT)
         {
-            e->type = 0;
+            e->type = types::FLOAT;
             float v = getfval(e->children[0]) + getfval(e->children[1]);
             floats.push_back(v);
             e->value = floats.size()-1;
         }
         else
         {
-            e->type = 1;
+            e->type = types::INT;
             int v = getival(e->children[0]) + getival(e->children[1]);
             ints.push_back(v);
             e->value = ints.size()-1;
@@ -232,16 +234,16 @@ int szparser::eval(ast_elem*& e)
         eval(e->children[0]);
         eval(e->children[1]);
         
-        if (e->children[0]->type == 0 || e->children[1]->type == 0)
+        if (e->children[0]->type == types::FLOAT || e->children[1]->type == types::FLOAT)
         {
-            e->type = 0;
+            e->type = types::FLOAT;
             float v = getfval(e->children[0]) - getfval(e->children[1]);
             floats.push_back(v);
             e->value = floats.size()-1;
         }
         else
         {
-            e->type = 1;
+            e->type = types::INT;
             int v = getival(e->children[0]) - getival(e->children[1]);
             ints.push_back(v);
             e->value = ints.size()-1;
@@ -250,14 +252,14 @@ int szparser::eval(ast_elem*& e)
     
     else if (e->name.find('.') != std::string::npos)
     {
-        e->type = 0;
+        e->type = types::FLOAT;
         float v = std::stof(e->name);
         floats.push_back(v);
         e->value = floats.size()-1;
     }
     else
     {
-        e->type = 1;
+        e->type = types::INT;
         int v = std::stoi(e->name);
         ints.push_back(v);
         e->value = ints.size()-1;
@@ -268,15 +270,15 @@ int szparser::eval(ast_elem*& e)
 
 int szparser::getival (const ast_elem* e)
 {
-    if      (e->type == 0) return int(floats[e->value]);
-    else if (e->type == 1) return ints[e->value];
+    if      (e->type == types::FLOAT) return int(floats[e->value]);
+    else if (e->type == types::INT)   return ints[e->value];
     
     return 0;
 }
 float szparser::getfval (const ast_elem* e)
 {
-    if      (e->type == 0) return floats[e->value];
-    else if (e->type == 1) return float(ints[e->value]);
+    if      (e->type == types::FLOAT) return floats[e->value];
+    else if (e->type == types::INT)   return float(ints[e->value]);
     
     return 0;
 }
