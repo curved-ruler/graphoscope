@@ -14,7 +14,26 @@ void mousebutton_callback (GLFWwindow* /*wnd*/, int button, int action, int mods
 
 int main ()
 {
-    cr::scripter ttconf("grid.conf");
+    cr::scripter ttconf(R"CONF(
+folders = {
+    target        : /stuff/S/graphoscope/graphoscope2/dist/workdir,
+    shader_dir    : /stuff/S/graphoscope/graphoscope2/gsgl/glrender/shaders,
+    font_dir      : fonts,
+    screen_dir    : screens,
+    screen_prefix : sp_
+}
+
+window = {
+    width  : 1280,
+    height : 720,
+    backgr : [0.1, 0.1, 0.1],
+    col    : [0.9, 0.9, 0.9],
+    alpha  : 1.0,
+    pixel_size : 1,
+    point_size : 4,
+    name   : "Grid"
+}
+)CONF");
     
     global_loop = new glfw_loop(ttconf);
     scene* nws = new universe(ttconf);

@@ -196,7 +196,7 @@ void universe::keyaction (int /*key*/, int /*action*/, int /*mods*/)
 
 void universe::mousemove (float /*xpos*/, float /*ypos*/, float xdiff, float ydiff)
 {
-    if (xdiff > -1000.0f && xdiff < 1000.0f && ydiff > -1000.0f && ydiff < 1000.0f)
+    if (xdiff > -50.0f && xdiff < 50.0f && ydiff > -50.0f && ydiff < 50.0f)
     {
         float kd = 0.4f*cr::dtor;
         
