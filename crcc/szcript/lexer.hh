@@ -4,11 +4,11 @@
 #include <string>
 #include <vector>
 
-#include "sztables.hh"
+#include "tables.hh"
 
-namespace sz {
+namespace cr {
 
-class szlexer {
+class lexer {
 
     public:
         std::string script;
@@ -25,13 +25,16 @@ class szlexer {
         std::vector<ps_elem> parenthesis_stack;
         
     public:
-        szlexer();
-        ~szlexer();
+        lexer();
+        ~lexer();
         
         void add(const std::string& scr);
         void clear();
         
-        int lexer();
+        int process();
+        
+        bool isspace (char c);
+        bool starts_w (const std::string& s, const std::string& w);
         
     private:
         int  add_name (std::string& s, int line);

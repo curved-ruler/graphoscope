@@ -1,24 +1,48 @@
 
-#include "szlexer.hh"
+#include "lexer.hh"
 
-#include "../gen/stringutils.hh"
+#include <iostream>
 
-namespace sz {
+namespace cr {
 
-szlexer::szlexer () {}
-szlexer::~szlexer () {}
+lexer::lexer () {}
+lexer::~lexer () {}
 
-void szlexer::add (const std::string& scr)
+bool lexer::isspace (char c)
+{
+    if (c == ' '  ||
+        c == '\f' ||
+        c == '\n' ||
+        c == '\r' ||
+        c == '\t' ||
+        c == '\v')
+    {
+        return true;
+    }
+    
+    return false;
+}
+bool lexer::starts_w (const std::string& s, const std::string& w)
+{
+    for (size_t i=0 ; i<w.size() ; ++i)
+    {
+        if (i >= s.size()) return false;
+        if (s[i] != w[i])  return false;
+    }
+    return true;
+}
+
+void lexer::add (const std::string& scr)
 {
     script += scr + "\n";
 }
-void szlexer::clear ()
+void lexer::clear ()
 {
     script = "";
     tokens.clear();
 }
 
-int szlexer::add_name (std::string& s, int l)
+int lexer::add_name (std::string& s, int l)
 {
     int found = -1;
     
@@ -40,7 +64,7 @@ int szlexer::add_name (std::string& s, int l)
     return 0;
 }
 
-int szlexer::add_op (std::string& s, int l)
+int lexer::add_op (std::string& s, int l)
 {
     int found = -1;
     
@@ -48,11 +72,11 @@ int szlexer::add_op (std::string& s, int l)
     {
         found = -1;
         
-        //if (cr::starts_w(s, "//")) return 1;
+        //if (starts_w(s, "//")) return 1;
         
         for (size_t j=0 ; j<ops.table.size() ; ++j)
         {
-            if (cr::starts_w(s, ops.table[j].name))
+            if (starts_w(s, ops.table[j].name))
             {
                 token t = token(token_t::OP, ops.table[j].name, l);
                 t.id = j;
@@ -73,7 +97,7 @@ int szlexer::add_op (std::string& s, int l)
     return 0;
 }
 
-int szlexer::add_par (char c, int line)
+int lexer::add_par (char c, int line)
 {
     if (c=='(')
     {
@@ -153,9 +177,9 @@ int szlexer::add_par (char c, int line)
     return 1;
 }
 
-void szlexer::new_char (char c, char peek, token_t::tt& collecting, std::string& s, int line)
+void lexer::new_char (char c, char peek, token_t::tt& collecting, std::string& s, int line)
 {
-    if (cr::isspace(c)) { return; }
+    if (isspace(c)) { return; }
     
     else if (c == '/' && (peek == '/')) { collecting = token_t::COMMENT; }
     
@@ -178,7 +202,7 @@ void szlexer::new_char (char c, char peek, token_t::tt& collecting, std::string&
     }
 }
 
-int szlexer::lexer ()
+int lexer::process ()
 {
     std::string s;
     token_t::tt collecting = token_t::UNKNOWN;
@@ -266,7 +290,7 @@ int szlexer::lexer ()
                 
             case token_t::IDENTIFIER:
                 if ( (ops.opchars.find(c) != std::string::npos) ||
-                     (cr::isspace(c)) ||
+                     (isspace(c)) ||
                      (c == '"') || ((c == ';')) ||
                      (c=='(' || c==')' || c=='[' || c==']' || c=='{' || c=='}') )
                 {

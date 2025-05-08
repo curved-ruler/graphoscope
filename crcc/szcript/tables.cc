@@ -1,9 +1,9 @@
 
-#include "sztables.hh"
+#include "tables.hh"
 
 #include <algorithm>
 
-namespace sz {
+namespace cr {
 
 
 keywords::keywords()
@@ -87,38 +87,41 @@ std::string tokentype_str (token_t::tt tt)
 {
     switch (tt)
         {
-            case sz::token_t::COMMENT:
+            case token_t::COMMENT:
                 return "comment";
                 
-            case sz::token_t::STRING:
+            case token_t::STRING:
                 return "string";
                 
-            case sz::token_t::OP:
+            case token_t::OP:
                 return "op";
                 
-            case sz::token_t::NUMBER:
+            case token_t::NUMBER:
                 return "number";
                 
-            case sz::token_t::IDENTIFIER:
+            case token_t::IDENTIFIER:
                 return "identif";
                 
-            case sz::token_t::UNKNOWN:
+            case token_t::UNKNOWN:
                 return "unknown";
                 
-            case sz::token_t::SEMICOLON:
+            case token_t::SEMICOLON:
                 return "semicol";
                 
-            case sz::token_t::PARENTH:
+            case token_t::PARENTH:
                 return "parenth";
                 
-            case sz::token_t::SQBRACKET:
+            case token_t::SQBRACKET:
                 return "sqbracket";
                 
-            case sz::token_t::BLOCK:
+            case token_t::BLOCK:
                 return "block";
                 
-            case sz::token_t::KEYWORD:
+            case token_t::KEYWORD:
                 return "keyword";
+                
+            case token_t::FUNCTION:
+                return "function";
         }
         return "?";
 }

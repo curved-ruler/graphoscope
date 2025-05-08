@@ -4,9 +4,9 @@
 #include <string>
 #include <vector>
 
-#include "../base.hh"
+#include "base.hh"
 
-namespace sz {
+namespace cr {
 
 namespace token_t {
 enum tt
@@ -15,7 +15,9 @@ enum tt
     COMMENT,
     SEMICOLON,
     PARENTH, SQBRACKET, BLOCK,
-    KEYWORD, OP, STRING, NUMBER, IDENTIFIER
+    KEYWORD, OP, STRING, NUMBER, IDENTIFIER,
+    
+    FUNCTION
 };
 }
 namespace types {
@@ -48,8 +50,8 @@ struct keywords
 
 struct op
 {
-    uint8 prec;
-    uint8 arity;
+    char prec;
+    char arity;
     bool  assoc; // true: +-,  false: =
     std::string name;
 };
@@ -64,11 +66,11 @@ struct operators
 
 struct ast_elem
 {
-    int rule;
+    token_t::tt toktyp;
     std::string name;
     
     types::typ type;
-    size_t value;
+    std::vector<uint8> value;
     
     std::vector<ast_elem*> children;
 };
